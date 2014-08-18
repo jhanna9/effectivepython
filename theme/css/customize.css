@@ -1,0 +1,144 @@
+html, body {
+    font-family: "helvetica", "arial", sans-serif;
+    font-size: 16px;
+    font-weight: 300;
+}
+
+@media (min-width: 768px) {
+  .container {
+    width: 750px;
+  }
+
+}
+
+h1, h2, h3 {
+    font-family: "futura-pt", "futura", sans-serif;
+    font-weight: 500;
+}
+h1 {
+    margin: 20px 0 0 0;
+}
+h2, h3 {
+    margin: 10px 0 10px;
+}
+
+a,
+a:hover,
+a:visited,
+a:active,
+a:focus {
+    color: #008fd5;
+}
+
+.btn,
+.btn:link,
+.btn:active,
+.btn:focus,
+.btn:visited {
+    color: #000 !important;
+    background-color: #efefef;
+    border-color: #aaa;
+}
+.btn:hover {
+    background-color: #fff;
+    border-color: #000;
+}
+.btn {
+    display: inline-block;
+    margin: 0;
+    font-family: "futura-pt", "futura", sans-serif;
+    font-size: 20px;
+    font-weight: 500;
+}
+.btn + .btn,
+.subscribe-button {
+    margin-left: 8px
+}
+
+@media (max-width: 767px) {
+    .btn {
+        width: 100%;
+        box-sizing: border-box;
+        margin: 10px 0 !important;
+        display: block;
+    }
+}
+
+.effective-type {
+    font-size: 50px;
+    font-family: "adobe-garamond-pro", "garamond", sans-serif;
+    font-style: italic;
+}
+.python-p-type {
+    font-family: "futura-pt", "futura", sans-serif;
+    font-size: 50px;
+    font-weight: 500;
+}
+.python-rest-type {
+    font-family: "futura-pt", "futura", sans-serif;
+    font-size: 30px;
+    text-transform: uppercase;
+    font-weight: 500;
+}
+
+.title-bar {
+    background-color: #008fd5;
+    margin: 20px 0 10px 0;
+    box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+}
+.title-bar h1 {
+    color: #fff;
+    margin: 10px 0;
+    text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
+}
+
+.page-content img {
+    float: right;
+    max-width: 50%;
+    height: auto;
+    max-height: 300px;
+    margin: 10px 16px 10px 16px;
+    padding: 0;
+}
+
+@media (max-width: 639px) {
+    .page-content img {
+        float: none;
+        max-width: 60%;
+        max-height: none;
+        margin: 10px auto;
+        display: block;
+    }
+}
+
+#about-the-author img {
+    border-radius: 30px;
+}
+
+.clear-images {
+    clear: both;
+}
+
+abbr {
+    border-bottom: 0 !important;
+}
+
+.published-container {
+    margin: 10px 0;
+}
+
+.footer {
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid #dcdcdc;
+    font-size: 12px;
+    text-align: center;
+}
+
+.footer-attribution,
+.footer-attribution a:link,
+.footer-attribution a:hover,
+.footer-attribution a:active,
+.footer-attribution a:visited {
+    color: #ccc;
+}
