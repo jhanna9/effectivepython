@@ -4,13 +4,6 @@ html, body {
     font-weight: 300;
 }
 
-@media (min-width: 768px) {
-  .container {
-    width: 750px;
-  }
-
-}
-
 h1, h2, h3 {
     font-family: "futura-pt", "futura", sans-serif;
     font-weight: 500;
@@ -19,7 +12,18 @@ h1 {
     margin: 20px 0 0 0;
 }
 h2, h3 {
-    margin: 10px 0 10px;
+    margin: 20px 0 10px;
+}
+
+p {
+    margin: 0;
+}
+p + p {
+    margin-top: 10px;
+}
+
+ol, ul {
+    margin: 10px 0 0 20px;
 }
 
 a,
@@ -28,6 +32,23 @@ a:visited,
 a:active,
 a:focus {
     color: #008fd5;
+}
+
+.entry-title a,
+.entry-title a:hover,
+.entry-title a:visited,
+.entry-title a:active,
+.entry-title a:focus {
+    color: #000;
+}
+
+.site-title a,
+.site-title a:hover,
+.site-title a:visited,
+.site-title a:active,
+.site-title a:focus {
+    color: #000;
+    text-decoration: none;
 }
 
 .btn,
@@ -45,22 +66,42 @@ a:focus {
 }
 .btn {
     display: inline-block;
-    margin: 0;
+    margin: 10px 0 0 0;
     font-family: "futura-pt", "futura", sans-serif;
     font-size: 20px;
     font-weight: 500;
+    clear: both;
 }
 .btn + .btn,
 .subscribe-button {
     margin-left: 8px
 }
+.mc-field-group {
+    margin-top: 10px;
+}
 
-@media (max-width: 767px) {
+@media (min-width: 768px) {
+    .container {
+        width: 750px;
+    }
+}
+
+@media (max-width: 639px) {
     .btn {
         width: 100%;
         box-sizing: border-box;
-        margin: 10px 0 !important;
+        margin: 10px 0 0 0 !important;
         display: block;
+    }
+}
+@media (min-width: 640px) {
+    .input-group .form-control {
+        width: auto !important;
+    }
+    .form-inline .input-group {
+        display: inline-table !important;
+        vertical-align: middle !important;
+        width: 315px;
     }
 }
 
@@ -83,7 +124,7 @@ a:focus {
 
 .title-bar {
     background-color: #008fd5;
-    margin: 20px 0 10px 0;
+    margin: 20px 0 0 0;
     box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
 }
 .title-bar h1 {
@@ -91,14 +132,25 @@ a:focus {
     margin: 10px 0;
     text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.2);
 }
+.article .title-bar {
+    margin-bottom: 10px;
+}
 
 .page-content img {
     float: right;
     max-width: 50%;
     height: auto;
-    max-height: 300px;
-    margin: 10px 16px 10px 16px;
+    margin: 0px 16px 10px 16px;
     padding: 0;
+}
+.cover-photo {
+    max-height: 350px;
+}
+.learn-more-photo {
+    max-height: 300px;
+}
+.about-photo {
+    max-height: 250px;
 }
 
 @media (max-width: 639px) {
@@ -108,6 +160,10 @@ a:focus {
         max-height: none;
         margin: 10px auto;
         display: block;
+    }
+    ol, ul {
+        margin: 10px;
+        padding: 0 0 0 20px;
     }
 }
 
@@ -125,6 +181,44 @@ abbr {
 
 .published-container {
     margin: 10px 0;
+}
+
+code {
+    color: #000;
+    background-color: inherit;
+    padding: 0;
+    border-radius: inherit;
+    font-family: "Courier New", monospace;
+}
+
+pre {
+    margin: 10px;
+    font-size: 14px;
+    padding: 0;
+    border: 0;
+    background-color: inherit;
+    overflow-x: scroll;
+    word-wrap: normal;
+}
+
+/* Pygments */
+.k, .ow, .mi {
+    color: darkBlue;
+}
+.o {
+    color: brown;
+}
+.nb {
+    color: green;
+}
+.s {
+    color: purple;
+}
+.c {
+    color: darkRed;
+}
+.k + .p {
+    color: green !important;
 }
 
 .footer {
