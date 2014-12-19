@@ -4,7 +4,7 @@ html, body {
     font-weight: 300;
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
     font-family: "futura-pt", "futura", sans-serif;
     font-weight: 500;
 }
@@ -23,7 +23,11 @@ p + p {
 }
 
 ol, ul {
-    margin: 10px 0 0 20px;
+    margin: 10px 0 10px 10px;
+    padding: 0 0 0 30px;
+}
+li {
+    margin: 10px 0;
 }
 
 a,
@@ -80,31 +84,6 @@ a:focus {
     margin-top: 10px;
 }
 
-@media (min-width: 768px) {
-    .container {
-        width: 750px;
-    }
-}
-
-@media (max-width: 639px) {
-    .btn {
-        width: 100%;
-        box-sizing: border-box;
-        margin: 10px 0 0 0 !important;
-        display: block;
-    }
-}
-@media (min-width: 640px) {
-    .input-group .form-control {
-        width: auto !important;
-    }
-    .form-inline .input-group {
-        display: inline-table !important;
-        vertical-align: middle !important;
-        width: 315px;
-    }
-}
-
 .effective-type {
     font-size: 50px;
     font-family: "adobe-garamond-pro", "garamond", sans-serif;
@@ -153,20 +132,6 @@ a:focus {
     max-height: 250px;
 }
 
-@media (max-width: 639px) {
-    .page-content img {
-        float: none;
-        max-width: 60%;
-        max-height: none;
-        margin: 10px auto;
-        display: block;
-    }
-    ol, ul {
-        margin: 10px;
-        padding: 0 0 0 20px;
-    }
-}
-
 #about-the-author img {
     border-radius: 30px;
 }
@@ -188,17 +153,32 @@ code {
     background-color: inherit;
     padding: 0;
     border-radius: inherit;
-    font-family: "Courier New", monospace;
+    font-size: 14px !important
 }
 
 pre {
-    margin: 10px;
+    margin: 0;
     font-size: 14px;
-    padding: 0;
+    padding: 10px;
     border: 0;
-    background-color: inherit;
+    background-color: #f3f3f3 !important;
+    border-radius: 0;
     overflow-x: scroll;
     word-wrap: normal;
+    margin: 0;
+}
+
+.highlight {
+    margin: 0 0 0 10px;
+    padding: 0;
+}
+
+p + .highlight {
+    margin-top: 10px;
+}
+
+.highlight + p {
+    margin-top: 10px;
 }
 
 /* Pygments */
@@ -235,4 +215,43 @@ pre {
 .footer-attribution a:active,
 .footer-attribution a:visited {
     color: #ccc;
+}
+
+@media (min-width: 768px) {
+    .container {
+        width: 750px;
+    }
+}
+
+@media (max-width: 639px) {
+    .page-content img {
+        float: none;
+        max-width: 60%;
+        max-height: none;
+        margin: 10px auto;
+        display: block;
+    }
+    ol, ul {
+        margin: 10px;
+    }
+    .btn {
+        width: 100%;
+        box-sizing: border-box;
+        margin: 10px 0 0 0 !important;
+        display: block;
+    }
+    .highlight {
+        margin: 0;
+    }
+}
+
+@media (min-width: 640px) {
+    .input-group .form-control {
+        width: auto !important;
+    }
+    .form-inline .input-group {
+        display: inline-table !important;
+        vertical-align: middle !important;
+        width: 315px;
+    }
 }

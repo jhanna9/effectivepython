@@ -27,6 +27,7 @@
 
             <link href="http://www.effectivepython.com/atom.xml" type="application/atom+xml" rel="alternate" title="Effective Python Atom Feed" />
             <meta name="google-site-verification" content="SxIULiiLHOaU206Ix5AbXU_9g_JiWZrdyKeI46XRfOA">
+
     </head>
 
     <body>
@@ -86,12 +87,13 @@
     <a href="http://amzn.to/1ylkKmc"><img src="http://www.effectivepython.com/images/cover.jpg" class="cover-photo" alt="EFfective Python Book Cover"></a>
 </div>
 
-<p>The <a href="http://www.python.org">Python programming language</a> has unique strengths and charms that can be hard to grasp. Many programmers familiar with other languages often approach Python from a limited mindset instead of embracing its full expressivity. Some programmers go too far in the other direction, over-using Python features that can cause big problems&nbsp;later.</p>
+<p>The <a href="http://www.python.org">Python programming language</a> has unique strengths and charms that can be hard to grasp. Many programmers familiar with other languages often approach Python from a limited mindset instead of embracing its full expressivity. Some programmers go too far in the other direction, overusing Python features that can cause big problems&nbsp;later.</p>
 <p><em>Effective Python</em> provides insight into the <em>Pythonic</em> way of writing programs: the best way to use Python. It builds on a fundamental understanding of the language that I assume you already have. Novice programmers will learn the best practices of Python&#8217;s capabilities. Experienced programmers will learn how to embrace the strangeness of a new tool with&nbsp;confidence.</p>
 <p>My goal is to prepare you to make a big impact with&nbsp;Python.</p>
 <h2>Available for&nbsp;Preorder</h2>
 <p>You can now preorder the book online. The tentative publishing date is in early&nbsp;2015.</p>
-<p><a target="_blank" href="http://amzn.to/1ylkKmc" class="btn btn-info btn-lg">Preorder on&nbsp;Amazon</a></p>
+<p><a target="_blank" href="http://amzn.to/1ylkKmc" class="btn btn-info btn-lg">Preorder on Amazon</a>
+<a target="_blank" href="http://click.linksynergy.com/link?id=YvEWtFaKGwg&offerid=145238.2235742&type=2&murl=http%3A%2F%2Fwww.informit.com%2Ftitle%2F9780134034423" class="btn btn-info btn-lg">Preorder the&nbsp;eBook</a></p>
 <h2>Get&nbsp;Updates</h2>
 <p>For a discount once the book is published and further updates, choose one of these&nbsp;options.</p>
 <!-- Begin MailChimp Signup Form -->
@@ -121,13 +123,8 @@
     <a class="btn btn-info btn-lg" href="/atom.xml" onclick="(function(btn){var z=document.createElement('script');document.subtomeBtn=btn;z.src='https://www.subtome.com/load.js';document.body.appendChild(z);})(this); return false"><span class="caps">RSS</span></a>
 </div>
 
-<!--
-
-## Already Have the Book?
-
-<a href="https://github.com/bslatkin/effectivepython">Visit the GitHub project</a> to see all of the code snippets from the book in one place. Run and modify the example code yourself to confirm your understanding. You can also <a href="https://github.com/bslatkin/effectivepython/issues/new">report any errors</a> you've found or <a href="https://github.com/bslatkin/effectivepython/Errata.md">view the list of corrections</a>.
-
--->
+<h2>Already Have the&nbsp;Book?</h2>
+<p><a href="https://github.com/bslatkin/effectivepython">Visit the GitHub project</a> to see all of the code snippets from the book in one place. Run and modify the example code yourself to confirm your understanding. You can also <a href="https://github.com/bslatkin/effectivepython/issues/new">report any errors</a> you&#8217;ve found or <a href="https://github.com/bslatkin/effectivepython/Errata.md">view the list of corrections</a>.</p>
             </div>
         </div>
     </div>
@@ -161,20 +158,102 @@
 <p>The items in this book are for Python 3 and Python 2 programmers alike. Programmers using alternative runtimes like Jython, IronPython, or PyPy should also find the majority of items to be&nbsp;applicable.</p>
 <h3>Chapter 1: Pythonic&nbsp;Thinking</h3>
 <p>The Python community has come to use the adjective Pythonic to describe code that follows a particular style. The idioms of Python have emerged over time through experience using the language and working with others. This chapter covers the best way to do the most common things in&nbsp;Python.</p>
+<ol>
+<li>Know Which Version of Python&nbsp;You&#8217;re&nbsp;Using</li>
+<li>Follow the <span class="caps"><span class="caps">PEP</span></span> 8&nbsp;Style&nbsp;Guide</li>
+<li>Know the Differences Between <code>bytes</code>, <code>str</code>, and <code>unicode</code></li>
+<li>Write Helper Functions Instead of&nbsp;Complex&nbsp;Expressions</li>
+<li>Know How to&nbsp;Slice&nbsp;Sequences</li>
+<li>Avoid Using <code>start</code>, <code>end</code>, and <code>stride</code> in a&nbsp;Single&nbsp;Slice</li>
+<li>Use List Comprehensions Instead of <code>map</code> and <code>filter</code></li>
+<li>Avoid More Than Two Expressions in&nbsp;List&nbsp;Comprehensions</li>
+<li>Consider Generator Expressions for&nbsp;Large&nbsp;Comprehensions</li>
+<li>Prefer <code>enumerate</code> Over&nbsp;range</li>
+<li>Use <code>zip</code> to Process Iterators&nbsp;in&nbsp;Parallel</li>
+<li>Avoid <code>else</code> Blocks After <code>for</code> and <code>while</code> Loops</li>
+<li>Take Advantage of Each Block in <code>try</code>/<code>except</code>/<code>else</code>/<code>finally</code></li>
+</ol>
+
 <h3>Chapter 2:&nbsp;Functions</h3>
-<p>Functions in Python have a variety of extra features that make a programmer&#8217;s life easier. Some are similar to capabilities in other programming languages, but many are unique to Python. This chapter covers how to use use functions to clarify intention, promote reuse, and reduce&nbsp;bugs.</p>
+<p>Functions in Python have a variety of extra features that make a programmer&#8217;s life easier. Some are similar to capabilities in other programming languages, but many are unique to Python. This chapter covers how to use functions to clarify intention, promote reuse, and reduce&nbsp;bugs.</p>
+<ol start="14">
+<li>Prefer Exceptions to Returning <code>None</code></li>
+<li>Know How Closures Interact with&nbsp;Variable&nbsp;Scope</li>
+<li>Consider Generators Instead of&nbsp;Returning&nbsp;Lists</li>
+<li>Be Defensive When Iterating&nbsp;Over&nbsp;Arguments</li>
+<li>Reduce Visual Noise with Variable&nbsp;Positional&nbsp;Arguments</li>
+<li>Provide Optional Behavior with&nbsp;Keyword&nbsp;Arguments</li>
+<li>Use <code>None</code> and Docstrings to Specify Dynamic&nbsp;Default&nbsp;Arguments</li>
+<li>Enforce Clarity with&nbsp;Keyword-Only&nbsp;Arguments</li>
+</ol>
+
 <h3>Chapter 3: Classes and&nbsp;Inheritance</h3>
 <p>Python is an object-oriented language. Getting things done in Python often requires writing new classes and defining how they interact through their interfaces and hierarchies. This chapter covers how to use classes and inheritance to express your intended behaviors with&nbsp;objects.</p>
+<ol start="22">
+<li>Prefer Helper Classes Over Bookkeeping with Dictionaries&nbsp;and&nbsp;Tuples</li>
+<li>Accept Functions for Simple Interfaces Instead&nbsp;of&nbsp;Classes</li>
+<li>Use <code>@classmethod</code> Polymorphism to Construct&nbsp;Objects&nbsp;Generically</li>
+<li>Initialize Parent Classes with <code>super</code></li>
+<li>Use Multiple Inheritance Only for Mix-in&nbsp;Utility&nbsp;Classes</li>
+<li>Prefer Public Attributes Over&nbsp;Private&nbsp;Ones</li>
+<li>Inherit from <code>collections.abc</code> for Custom&nbsp;Container&nbsp;Types</li>
+</ol>
+
 <h3>Chapter 4: Metaclasses and&nbsp;Attributes</h3>
-<p>Metaclasses and dynamic attributes are powerful Python features. However, they also enable you to implement extremely bizarre and unexpected behaviors. This chapter covers the common idioms for using these mechanisms to ensure you follow the <em>rule of least surprise</em>.</p>
+<p>Metaclasses and dynamic attributes are powerful Python features. However, they also enable you to implement extremely bizarre and unexpected behaviors. This chapter covers the common idioms for using these mechanisms to ensure that you follow the <em>rule of least surprise</em>.</p>
+<ol start="29">
+<li>Use Plain Attributes Instead of Get and&nbsp;Set&nbsp;Methods</li>
+<li>Consider <code>@property</code> Instead of&nbsp;Refactoring&nbsp;Attributes</li>
+<li>Use Descriptors for Reusable <code>@property</code> Methods</li>
+<li>Use <code>__getattr__</code>, <code>__getattribute__</code>, and <code>__setattr__</code> for&nbsp;Lazy&nbsp;Attributes</li>
+<li>Validate Subclasses&nbsp;with&nbsp;Metaclasses</li>
+<li>Register Class Existence&nbsp;with&nbsp;Metaclasses</li>
+<li>Annotate Class Attributes&nbsp;with&nbsp;Metaclasses</li>
+</ol>
+
 <h3>Chapter 5: Concurrency and&nbsp;Parallelism</h3>
 <p>Python makes it easy to write concurrent programs that do many different things seemingly at the same time. Python can also be used to do parallel work through system calls, subprocesses, and C-extensions. This chapter covers how to best utilize Python in these subtly different&nbsp;situations.</p>
+<ol start="36">
+<li>Use <code>subprocess</code> to Manage&nbsp;Child&nbsp;Processes</li>
+<li>Use Threads for Blocking I/O, Avoid&nbsp;for&nbsp;Parallelism</li>
+<li>Use <code>Lock</code> to Prevent Data Races&nbsp;in&nbsp;Threads</li>
+<li>Use <code>Queue</code> to Coordinate Work&nbsp;Between&nbsp;Threads</li>
+<li>Consider Coroutines to Run Many&nbsp;Functions&nbsp;Concurrently</li>
+<li>Consider <code>concurrent.futures</code> for&nbsp;True&nbsp;Parallelism</li>
+</ol>
+
 <h3>Chapter 6: Built-in&nbsp;Modules</h3>
 <p>Python is installed with many of the important modules that you&#8217;ll need to write programs. These standard packages are so closely intertwined with idiomatic Python that they may as well be part of the language specification. This chapter covers the essential built-in&nbsp;modules.</p>
+<ol start="42">
+<li>Define Function Decorators with <code>functools.wraps</code></li>
+<li>Consider <code>contextlib</code> and <code>with</code> Statements for Reusable <code>try</code>/<code>finally</code> Behavior</li>
+<li>Make <code>pickle</code> Reliable with <code>copyreg</code></li>
+<li>Use <code>datetime</code> Instead of <code>time</code> for&nbsp;Local&nbsp;Clocks</li>
+<li>Use Built-in Algorithms and&nbsp;Data&nbsp;Structures</li>
+<li>Use <code>decimal</code> When Precision&nbsp;is&nbsp;Paramount</li>
+<li>Know Where to Find&nbsp;Community-Built&nbsp;Modules</li>
+</ol>
+
 <h3>Chapter 7:&nbsp;Collaboration</h3>
-<p>Collaborating on Python programs requires being deliberate about how you write your code. Even if you&#8217;re working alone, you&#8217;ll want to understand how to use modules written by others. This chapter covers the standard tools and best practices that enable people to work together on Python&nbsp;programs.</p>
+<p>Collaborating on Python programs requires you to be deliberate about how you write your code. Even if you&#8217;re working alone, you&#8217;ll want to understand how to use modules written by others. This chapter covers the standard tools and best practices that enable people to work together on Python&nbsp;programs.</p>
+<ol start="49">
+<li>Write Docstrings for Every Function, Class,&nbsp;and&nbsp;Module</li>
+<li>Use Packages to Organize Modules and Provide&nbsp;Stable&nbsp;APIs</li>
+<li>Define a Root <code>Exception</code> to Insulate Callers&nbsp;from&nbsp;APIs</li>
+<li>Know How to Break&nbsp;Circular&nbsp;Dependencies</li>
+<li>Use Virtual Environments for Isolated and&nbsp;Reproducible&nbsp;Dependencies</li>
+</ol>
+
 <h3>Chapter 8:&nbsp;Production</h3>
 <p>Python has facilities for adapting to multiple deployment environments. It also has built-in modules that aid in hardening your programs and making them bulletproof. This chapter covers how to use Python to debug, optimize, and test your programs to maximize quality and performance at&nbsp;runtime.</p>
+<ol start="54">
+<li>Consider Module-Scoped Code to Configure&nbsp;Deployment&nbsp;Environments</li>
+<li>Use <code>repr</code> Strings for&nbsp;Debugging&nbsp;Output</li>
+<li>Test Everything with <code>unittest</code></li>
+<li>Consider Interactive Debugging with <code>pdb</code></li>
+<li>Profile&nbsp;Before&nbsp;Optimizing</li>
+<li>Use <code>tracemalloc</code> to Understand Memory Usage&nbsp;and&nbsp;Leaks</li>
+</ol>
             </div>
         </div>
     </div>
@@ -208,7 +287,7 @@
     <img class="about-photo" src="http://www.effectivepython.com/images/bslatkin_square.jpg" alt="Brett Slatkin">
 </div>
 
-<p>Brett is a Senior Staff Software Engineer at Google. He is the engineering lead and co-founder of <a href="https://www.google.com/insights/consumersurveys/home">Google Consumer Surveys</a>. He formerly worked on <a href="https://developers.google.com/appengine/">Google App Engine&#8217;s</a> Python infrastructure. He is the co-creator of the <a href="https://code.google.com/p/pubsubhubbub/">PubSubHubbub</a> protocol. 9 years ago he cut his teeth using Python to manage Google&#8217;s enormous fleet of&nbsp;servers.</p>
+<p>Brett is a Senior Staff Software Engineer at Google. He is the engineering lead and co-founder of <a href="https://www.google.com/insights/consumersurveys/home">Google Consumer Surveys</a>. He formerly worked on <a href="https://developers.google.com/appengine/">Google App Engine&#8217;s</a> Python infrastructure. He is the co-creator of the <a href="https://code.google.com/p/pubsubhubbub/">PubSubHubbub</a> protocol. Nine years ago he cut his teeth using Python to manage Google&#8217;s enormous fleet of&nbsp;servers.</p>
 <p>Outside of his day job, he works on <a href="http://github.com/bslatkin">open source tools</a> and writes about software, bicycles, and other topics <a href="http://www.onebigfluke.com">on his personal website</a>. He earned his <span class="caps">B.S.</span> in Computer Engineering from Columbia University in the City of New York. He lives in San&nbsp;Francisco.</p>
 <div class="clear-images">
     <a target="_blank" href="https://twitter.com/haxor" class="btn btn-info btn-lg">Follow @haxor</a>
@@ -254,6 +333,20 @@
 <section id="posts" class="content">
     <div class="container">
 
+        <div class="row hentry" id="rough-cut-is-online">
+            <div class="col-md-12">
+                <h2 class="entry-title"><a href="http://www.effectivepython.com/2014/12/18/rough-cut-is-online/">The Rough Cut Is&nbsp;Online</a></h2>
+
+                <div class="text-muted published-container">
+                    <abbr class="published" title="2014-12-18T19:15:00-08:00">Thu 18 December 2014</abbr>
+                </div>
+
+                    <div class="entry-content">
+                        <p>Can&#8217;t wait until next year for the book to be published? The rough cut is now <a href="http://safari.informit.com/9780134034416">available on Safari Books Online</a>. This is an early preview of the full content of the book before editing has been&nbsp;completed.</p>
+                    </div>
+
+            </div>
+        </div>
         <div class="row hentry" id="preorder-the-book">
             <div class="col-md-12">
                 <h2 class="entry-title"><a href="http://www.effectivepython.com/2014/12/04/preorder-the-book/">Now Available for&nbsp;Preorder</a></h2>
