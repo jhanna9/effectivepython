@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+            <title>Effective Python &rsaquo; Item 17: Be Defensive When Iterating Over Arguments</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+            <script type="text/javascript" src="//use.typekit.net/wsb2ykq.js"></script>
+            <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+            <link href="http://www.effectivepython.com/theme/css/bootstrap.min.css" rel="stylesheet" />
+            <link href="http://www.effectivepython.com/theme/css/customize.css" rel="stylesheet" />
+            <link rel="icon" type="image/png" href="http://www.effectivepython.com/images/favicon.png">
+
+            <meta name="description" content="When a function takes a list of objects as a parameter, it’s often important to iterate over that list multiple times.">
+
+            <meta name="twitter:card" content="summary">
+            <meta name="twitter:creator" content="@EffectivePython">
+            <meta name="twitter:domain" content="effectivepython.com">
+            <meta name="twitter:title" content="Effective Python &rsaquo; Item 17: Be Defensive When Iterating Over Arguments">
+            <meta name="twitter:description" content="When a function takes a list of objects as a parameter, it’s often important to iterate over that list multiple times.">
+            <meta name="twitter:img:src" content="http://www.effectivepython.com/images/cover.jpg">
+
+            <meta property="og:title" content="Effective Python &rsaquo; Item 17: Be Defensive When Iterating Over Arguments">
+            <meta property="og:description" content="When a function takes a list of objects as a parameter, it’s often important to iterate over that list multiple times.">
+            <meta property="og:image" content="http://www.effectivepython.com/images/cover.jpg">
+            <meta property="og:url" content="http://www.effectivepython.com/2015/01/03/be-defensive-when-iterating-over-arguments/">
+
+            <link href="http://www.effectivepython.com/atom.xml" type="application/atom+xml" rel="alternate" title="Effective Python Atom Feed" />
+            <meta name="google-site-verification" content="SxIULiiLHOaU206Ix5AbXU_9g_JiWZrdyKeI46XRfOA">
+
+    </head>
+
+    <body>
+        <div class="header">
+            <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h1 class="site-title"><a href="http://www.effectivepython.com/"><span class="effective-type">Effective</span> <span class="python-p-type">P</class><span class="python-rest-type">ython</span></a></h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<section id="content" class="article content">
+
+<div class="title-bar">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Item 17: Be Defensive When Iterating Over&nbsp;Arguments</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-muted published-container">
+                    <abbr class="published" title="2015-01-03T23:30:00-08:00">Sat 03 January 2015</abbr>
+                </div>
+                <div class="entry-content">
+                    <p><em>The following is a sample from the new book <a href="/">Effective Python</a>.</em><br><br></p>
+
+
+<p>When a function takes a list of objects as a parameter, it&#8217;s often important to iterate over that list multiple times. For example, say you want to analyze tourism numbers for the <span class="caps">U.S.</span> State of Texas. Imagine the data set is the number of visitors to each city (in millions per year). You&#8217;d like to figure out what percentage of overall tourism each city&nbsp;receives.</p>
+<p>To do this you need a normalization function. It sums the inputs to figure out the total number of tourists per year. Then it divides each city&#8217;s individual visitor count by the total to find that city&#8217;s contribution to the&nbsp;whole.</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">normalize</span><span class="p">(</span><span class="n">numbers</span><span class="p">):</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">:</span>
+        <span class="n">percent</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">value</span> <span class="o">/</span> <span class="n">total</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">percent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+
+<p>This function works when given a list of&nbsp;visits.</p>
+<div class="highlight"><pre><span class="n">visits</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">80</span><span class="p">]</span>
+<span class="n">percentages</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">visits</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">percentages</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+[11.538461538461538, 26.923076923076923, 61.53846153846154]
+</pre></div>
+
+
+<p>To scale this up, I need to read the data from a file that contains every city in all of Texas. I define a generator to do this because then I can reuse the same function later when I want to compute tourism numbers for the whole world, a much larger data&nbsp;set.</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">read_visits</span><span class="p">(</span><span class="n">data_path</span><span class="p">):</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">data_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">yield</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Surprisingly, calling <code>normalize</code> on the generator&#8217;s return value produces no&nbsp;results.</p>
+<div class="highlight"><pre><span class="n">it</span> <span class="o">=</span> <span class="n">read_visits</span><span class="p">(</span><span class="s">&#39;/tmp/my_numbers.txt&#39;</span><span class="p">)</span>
+<span class="n">percentages</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">percentages</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+[]
+</pre></div>
+
+
+<p>The cause of this behavior is that an iterator only produces its results a single time. If you iterate over an iterator or generator that has already raised a <code>StopIteration</code> exception, you won&#8217;t get any results the second time&nbsp;around.</p>
+<div class="highlight"><pre><span class="n">it</span> <span class="o">=</span> <span class="n">read_visits</span><span class="p">(</span><span class="s">&#39;/tmp/my_numbers.txt&#39;</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">it</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">it</span><span class="p">))</span>  <span class="c"># Already exhausted</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+[15, 35, 80]
+[]
+</pre></div>
+
+
+<p>What&#8217;s confusing is that you also won&#8217;t get any errors when you iterate over an already-exhausted iterator. <code>for</code> loops, the <code>list</code> constructor, and many other functions throughout the Python standard library expect the <code>StopIteration</code> exception to be raised during normal operation. These functions can&#8217;t tell the difference between an iterator that has no output and an iterator that had output and is now&nbsp;exhausted.</p>
+<p>To solve this problem, you can explicitly exhaust an input iterator and keep a copy of its entire contents in a list. You can then iterate over the list version of the data as many times as you need to. Here&#8217;s the same function as before, but it defensively copies the input&nbsp;iterator.</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">normalize_copy</span><span class="p">(</span><span class="n">numbers</span><span class="p">):</span>
+    <span class="n">numbers</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>  <span class="c"># Copy the iterator</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">:</span>
+        <span class="n">percent</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">value</span> <span class="o">/</span> <span class="n">total</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">percent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+
+<p>Now the function works correctly on a generator&#8217;s return&nbsp;value.</p>
+<div class="highlight"><pre><span class="n">it</span> <span class="o">=</span> <span class="n">read_visits</span><span class="p">(</span><span class="s">&#39;/tmp/my_numbers.txt&#39;</span><span class="p">)</span>
+<span class="n">percentages</span> <span class="o">=</span> <span class="n">normalize_copy</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">percentages</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+[11.538461538461538, 26.923076923076923, 61.53846153846154]
+</pre></div>
+
+
+<p>The problem with this approach is the copy of the input iterator&#8217;s contents could be large. Copying the iterator could cause your program to run out of memory and crash. One way around this is to accept a function that returns a new iterator each time it&#8217;s&nbsp;called. </p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">normalize_func</span><span class="p">(</span><span class="n">get_iter</span><span class="p">):</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">get_iter</span><span class="p">())</span>   <span class="c"># New iterator</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">get_iter</span><span class="p">():</span>  <span class="c"># New iterator</span>
+        <span class="n">percent</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">value</span> <span class="o">/</span> <span class="n">total</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">percent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+
+<p>To use <code>normalize_func</code>, you can pass in a <code>lambda</code> expression that calls the generator and produces a new iterator each&nbsp;time.</p>
+<div class="highlight"><pre><span class="n">percentages</span> <span class="o">=</span> <span class="n">normalize_func</span><span class="p">(</span><span class="k">lambda</span><span class="p">:</span> <span class="n">read_visits</span><span class="p">(</span><span class="n">path</span><span class="p">))</span>
+</pre></div>
+
+
+<p>Though it works, having to pass a lambda function like this is clumsy. The better way to achieve the same result is to provide a new container class that implements the <em>iterator protocol</em>.</p>
+<p>The iterator protocol is how Python <code>for</code> loops and related expressions traverse the contents of a container type. When Python sees a statement like <code>for x in foo</code> it will actually call <code>iter(foo)</code>. The <code>iter</code> built-in function calls the <code>foo.__iter__</code> special method in turn. The <code>__iter__</code> method must return an iterator object (which itself implements the <code>__next__</code> special method). Then the <code>for</code> loop repeatedly calls the <code>next</code> built-in function on the iterator object until it&#8217;s exhausted (and raises a <code>StopIteration</code> exception).</p>
+<p>It sounds complicated, but practically speaking you can achieve all of this behavior for your classes by implementing the <code>__iter__</code> method as a generator. Here I define an iterable container class that reads the files containing tourism&nbsp;data.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">ReadVisits</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_path</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_path</span> <span class="o">=</span> <span class="n">data_path</span>
+
+    <span class="k">def</span> <span class="nf">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">f</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="nb">int</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+</pre></div>
+
+
+<p>This new container type works correctly when passed to the original function without any&nbsp;modifications.</p>
+<div class="highlight"><pre><span class="n">visits</span> <span class="o">=</span> <span class="n">ReadVisits</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="n">percentages</span> <span class="o">=</span> <span class="n">normalize</span><span class="p">(</span><span class="n">visits</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="n">percentages</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+[11.538461538461538, 26.923076923076923, 61.53846153846154]
+</pre></div>
+
+
+<p>This works because the <code>sum</code> method in <code>normalize</code> will call <code>ReadVisits.__iter__</code> to allocate a new iterator object. The <code>for</code> loop to normalize the numbers will also call <code>__iter__</code> to allocate a second iterator object. Each of those iterators will be advanced and exhausted independently, ensuring that each unique iteration sees all of the input data values. The only downside of this approach is it reads the input data multiple&nbsp;times.</p>
+<p>Now that you know how containers like <code>ReadVisits</code> work, you can write your functions to ensure that parameters aren&#8217;t just iterators. The protocol states that when an iterator is passed to the <code>iter</code> built-in function, <code>iter</code> will return the iterator itself. In contrast, when a container type is passed to <code>iter</code>, a new iterator object will be returned each time. Thus, you can test an input value for this behavior and raise a <code>TypeError</code> to reject&nbsp;iterators.</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">normalize_defensive</span><span class="p">(</span><span class="n">numbers</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">iter</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span> <span class="ow">is</span> <span class="nb">iter</span><span class="p">(</span><span class="n">numbers</span><span class="p">):</span>  <span class="c"># An iterator -- bad!</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s">&#39;Must supply a container&#39;</span><span class="p">)</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">numbers</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">numbers</span><span class="p">:</span>
+        <span class="n">percent</span> <span class="o">=</span> <span class="mi">100</span> <span class="o">*</span> <span class="n">value</span> <span class="o">/</span> <span class="n">total</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">percent</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
+</pre></div>
+
+
+<p>This is ideal if you you don&#8217;t want to copy the full input iterator like <code>normalize_copy</code> above, but you also need to iterate over the input data multiple times. This function works as expected for <code>list</code> and <code>ReadVisits</code> inputs because they are containers. It will work for any type of container that follows the iterator&nbsp;protocol.</p>
+<div class="highlight"><pre><span class="n">visits</span> <span class="o">=</span> <span class="p">[</span><span class="mi">15</span><span class="p">,</span> <span class="mi">35</span><span class="p">,</span> <span class="mi">80</span><span class="p">]</span>
+<span class="n">normalize_defensive</span><span class="p">(</span><span class="n">visits</span><span class="p">)</span>  <span class="c"># No error</span>
+<span class="n">visits</span> <span class="o">=</span> <span class="n">ReadVisits</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="n">normalize_defensive</span><span class="p">(</span><span class="n">visits</span><span class="p">)</span>  <span class="c"># No error</span>
+</pre></div>
+
+
+<p>The function will raise an exception if the input is iterable but not a&nbsp;container.</p>
+<div class="highlight"><pre><span class="n">it</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">visits</span><span class="p">)</span>
+<span class="n">normalize_defensive</span><span class="p">(</span><span class="n">it</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+TypeError: Must supply a container
+</pre></div>
+
+
+<h3>Things to&nbsp;Remember</h3>
+<ul>
+<li>Beware of functions that iterate over input arguments multiple times. If these arguments are iterators you may see strange behavior and missing&nbsp;values.</li>
+<li>Python&#8217;s iterator protocol defines how containers and iterators interact with the <code>iter</code> and <code>next</code> built-in functions, <code>for</code> loops, and related&nbsp;expressions.</li>
+<li>You can easily define your own iterable container type by implementing the <code>__iter__</code> method as a&nbsp;generator.</li>
+<li>You can detect that a value is an iterator (instead of a container) if calling <code>iter</code> on it twice produces the same result, which can then be progress with the <code>next</code> built-in&nbsp;function.</li>
+</ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</section>
+
+
+
+<section id="learn-more" class="content">
+
+
+<div class="page-content">
+    <div class="container">
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <p><br></p>
+<h2><em>If you enjoyed this, get the&nbsp;book</em></h2>
+<div>
+    <a href="http://amzn.to/1ylkKmc"><img src="http://www.effectivepython.com/images/cover.jpg" class="learn-more-photo" alt="EFfective Python Book Cover"></a>
+</div>
+
+<p><em>Effective Python</em> provides insight into the <em>Pythonic</em> way of writing programs: the best way to use Python. Novice programmers will learn the best practices of Python&#8217;s capabilities. Experienced programmers will learn how to embrace the strangeness of a new tool with confidence. Items include advice on what to do, what to avoid, how to strike the right balance, and why this is the best&nbsp;choice.</p>
+<p><a target="_blank" href="http://amzn.to/1ylkKmc" class="btn btn-info btn-lg">Preorder on&nbsp;Amazon</a></p>
+<p><a target="_blank" href="http://click.linksynergy.com/link?id=YvEWtFaKGwg&offerid=145238.2235742&type=2&murl=http%3A%2F%2Fwww.informit.com%2Ftitle%2F9780134034423" class="btn btn-info btn-lg">Preorder the&nbsp;eBook</a></p>
+<p><a href="/" class="btn btn-info btn-lg">Learn&nbsp;more</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</section>
+
+
+
+
+        <footer id="contentinfo" class="footer">
+            <div class="container">
+                <address id="about" class="vcard body">
+                    &copy; 2014 - 2015 <a class="url fn" href="http://www.onebigfluke.com">Brett Slatkin</a>
+                    <span class="footer-attribution"> &mdash; Powered by <a href="http://getpelican.com/">Pelican</a></span>
+                </address>
+            </div>
+        </footer>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+	var pageTracker = _gat._getTracker("UA-53888969-1");
+pageTracker._trackPageview();
+} catch(err) {}
+</script>
+    </body>
+</html>
