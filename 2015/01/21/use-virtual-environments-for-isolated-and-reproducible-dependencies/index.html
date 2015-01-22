@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+            <title>Effective Python &rsaquo; Item 53: Use Virtual Environments for Isolated and Reproducible Dependencies</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+            <script type="text/javascript" src="//use.typekit.net/wsb2ykq.js"></script>
+            <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+            <link href="http://www.effectivepython.com/theme/css/bootstrap.min.css" rel="stylesheet" />
+            <link href="http://www.effectivepython.com/theme/css/customize.css" rel="stylesheet" />
+            <link rel="icon" type="image/png" href="http://www.effectivepython.com/images/favicon.png">
+
+            <meta name="description" content="Building larger and more complex programs often leads you to rely on various packages from the Python community. You’ll find yourself running pip to install packages like pytz, numpy, and many others. The problem is that by default pip installs new packages in a global location. That causes all Python programs on your system to be affected by these installed modules. In theory, this shouldn’t be an issue. If you install a package and never import it, how could it affect your programs?">
+
+            <meta name="twitter:card" content="summary">
+            <meta name="twitter:creator" content="@EffectivePython">
+            <meta name="twitter:domain" content="effectivepython.com">
+            <meta name="twitter:title" content="Effective Python &rsaquo; Item 53: Use Virtual Environments for Isolated and Reproducible Dependencies">
+            <meta name="twitter:description" content="Building larger and more complex programs often leads you to rely on various packages from the Python community. You’ll find yourself running pip to install packages like pytz, numpy, and many others. The problem is that by default pip installs new packages in a global location. That causes all Python programs on your system to be affected by these installed modules. In theory, this shouldn’t be an issue. If you install a package and never import it, how could it affect your programs?">
+            <meta name="twitter:img:src" content="http://www.effectivepython.com/images/cover.jpg">
+
+            <meta property="og:title" content="Effective Python &rsaquo; Item 53: Use Virtual Environments for Isolated and Reproducible Dependencies">
+            <meta property="og:description" content="Building larger and more complex programs often leads you to rely on various packages from the Python community. You’ll find yourself running pip to install packages like pytz, numpy, and many others. The problem is that by default pip installs new packages in a global location. That causes all Python programs on your system to be affected by these installed modules. In theory, this shouldn’t be an issue. If you install a package and never import it, how could it affect your programs?">
+            <meta property="og:image" content="http://www.effectivepython.com/images/cover.jpg">
+            <meta property="og:url" content="http://www.effectivepython.com/2015/01/21/use-virtual-environments-for-isolated-and-reproducible-dependencies/">
+
+            <link href="http://www.effectivepython.com/atom.xml" type="application/atom+xml" rel="alternate" title="Effective Python Atom Feed" />
+            <meta name="google-site-verification" content="SxIULiiLHOaU206Ix5AbXU_9g_JiWZrdyKeI46XRfOA">
+
+    </head>
+
+    <body>
+        <div class="header">
+            <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h1 class="site-title"><a href="http://www.effectivepython.com/"><span class="effective-type">Effective</span> <span class="python-p-type">P</class><span class="python-rest-type">ython</span></a></h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<section id="content" class="article content">
+
+<div class="title-bar">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Item 53: Use Virtual Environments for Isolated and Reproducible <wbr>Dependencies</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-muted published-container">
+                    <abbr class="published" title="2015-01-21T19:45:00-08:00">Wed 21 January 2015</abbr>
+                </div>
+                <div class="entry-content">
+                    <p><em>The following is a sample from the new book <a href="/">Effective Python</a>.</em><br><br></p>
+
+
+<p>Building larger and more complex programs often leads you to rely on various packages from the Python community. You&#8217;ll find yourself running <code>pip</code> to install packages like <code>pytz</code>, <code>numpy</code>, and many&nbsp;others.</p>
+<p>The problem is that by default <code>pip</code> installs new packages in a global location. That causes all Python programs on your system to be affected by these installed modules. In theory, this shouldn&#8217;t be an issue. If you install a package and never <code>import</code> it, how could it affect your programs?</p>
+<p>The trouble comes from transitive dependencies: the packages that the packages you install depend on. For example, you can see what the <code>Sphinx</code> package depends on after installing it by asking <code>pip</code>.</p>
+<div class="highlight"><pre>$ pip3 show Sphinx
+---
+Name: Sphinx
+Version: 1.2.2
+Location: /usr/local/lib/python3.4/site-packages
+Requires: docutils, Jinja2, Pygments
+</pre></div>
+
+
+<p>If you install another package like <code>flask</code>, you can see that it too depends on the <code>Jinja2</code> package.</p>
+<div class="highlight"><pre>$ pip3 show flask
+---
+Name: Flask
+Version: 0.10.1
+Location: /usr/local/lib/python3.4/site-packages
+Requires: Werkzeug, Jinja2, itsdangerous
+</pre></div>
+
+
+<p>The conflict arises as <code>Sphinx</code> and <code>flask</code> diverge over time. Perhaps right now they both require the same version of <code>Jinja2</code> and everything is fine. But six months or a year from now, <code>Jinja2</code> may release a new version that makes breaking changes to users of the library. If you update your global version of <code>Jinja2</code> with <code>pip install --upgrade</code>, you may find that <code>Sphinx</code> breaks while <code>flask</code> keeps&nbsp;working.</p>
+<p>The cause of this breakage is that Python can only have a single global version of a module installed at a time. If one of your installed packages must use the new version and another package must use the old version, your system isn&#8217;t going to work&nbsp;properly.</p>
+<p>Such breakage can even happen when package maintainers try their best to preserve <span class="caps">API</span> compatibility between releases. New versions of a library can subtly change behaviors that <span class="caps">API</span> consuming code relies on. Users on a system may upgrade one package to a new version but not others, breaking dependencies. There&#8217;s a constant risk of the ground moving beneath your&nbsp;feet.</p>
+<p>These difficulties are magnified when you collaborate with other developers who do their work on separate computers. It&#8217;s reasonable to assume that the versions of Python and global packages they have installed on their machines will be slightly different than your own. This can cause frustrating situations where a codebase works perfectly on one programmer&#8217;s machine and is completely broken on&nbsp;another&#8217;s.</p>
+<p>The solution to all of these problems is a tool called <code>pyvenv</code>, which provides <em>virtual environments</em>. Since Python 3.4, the <code>pyvenv</code> command-line tool is available by default along with the Python installation (it&#8217;s also accessible with <code>python -m venv</code>). Prior versions of Python require installing a separate package (with <code>pip install virtualenv</code>) and using a command-line tool called <code>virtualenv</code>.</p>
+<p><code>pyvenv</code> allows you to create isolated versions of the Python environment. Using <code>pyvenv</code>, you can have many different versions of the same package installed on the same system at the same time without conflicts. This lets you work on many different projects and use many different tools on the same&nbsp;computer.</p>
+<p><code>pyvenv</code> does this by installing explicit versions of packages and their dependencies into completely separate directory structures. This makes it possible to reproduce a Python environment that you know will work with your code. It&#8217;s a reliable way to avoid surprising&nbsp;breakages.</p>
+<h3>The <code>pyvenv</code> Command</h3>
+<p>Here&#8217;s a quick tutorial on how to use <code>pyvenv</code> effectively. Before using the tool, it&#8217;s important to note the meaning of the <code>python3</code> command-line on your system. On my computer, <code>python3</code> is located in the <code>/usr/local/bin</code> directory and evaluates to version&nbsp;3.4.2.</p>
+<div class="highlight"><pre>$ which python3
+/usr/local/bin/python3
+$ python3 --version
+Python 3.4.2
+</pre></div>
+
+
+<p>To demonstrate the setup of my environment, I can test that running a command to import the <code>pytz</code> module doesn&#8217;t cause an error. This works because I already have the <code>pytz</code> package installed as a global&nbsp;module.</p>
+<div class="highlight"><pre>$ python3 -c &#39;import pytz&#39;
+$
+</pre></div>
+
+
+<p>Now I use <code>pyvenv</code> to create a new virtual environment called <code>myproject</code>. Each virtual environment must live in its own unique directory. The result of the command is a tree of directories and&nbsp;files.</p>
+<div class="highlight"><pre>$ pyvenv /tmp/myproject
+$ cd /tmp/myproject
+$ ls
+bin     include     lib     pyvenv.cfg
+</pre></div>
+
+
+<p>To start using the virtual environment, I use the <code>source</code> command from my shell on the <code>bin/activate</code> script. <code>activate</code> modifies all of my environment variables to match the virtual environment. It also updates my command-line prompt to include the virtual environment name (<code>'myproject'</code>) to make it extremely clear what I&#8217;m working&nbsp;on.</p>
+<div class="highlight"><pre>$ source bin/activate
+(myproject)$
+</pre></div>
+
+
+<p>After activation, you can see that the path to the <code>python3</code> command-line tool has moved to within the virtual environment&nbsp;directory.</p>
+<div class="highlight"><pre>(myproject)$ which python3
+/tmp/myproject/bin/python3
+(myproject)$ ls -l /tmp/myproject/bin/python3
+... -&gt; /tmp/myproject/bin/python3.4
+(myproject)$ ls -l /tmp/myproject/bin/python3.4
+... -&gt; /usr/local/bin/python3.4
+</pre></div>
+
+
+<p>This ensures that changes to the outside system will not affect the virtual environment. Even if the outer system upgrades its default <code>python3</code> to version 3.5, my virtual environment will still explicitly point at version&nbsp;3.4.</p>
+<p>The virtual environment I created with <code>pyvenv</code> starts with no packages installed except for <code>pip</code> and <code>setuptools</code>. Trying to use the <code>pytz</code> package that was installed as a global module in the outside system will fail because it&#8217;s unknown to the virtual&nbsp;environment.</p>
+<div class="highlight"><pre>(myproject)$ python3 -c &#39;import pytz&#39;
+Traceback (most recent call last):
+  File &quot;&lt;string&gt;&quot;, line 1, in &lt;module&gt;
+ImportError: No module named &#39;pytz&#39;
+</pre></div>
+
+
+<p>I can use <code>pip</code> to install the <code>pytz</code> module into my virtual&nbsp;environment.</p>
+<div class="highlight"><pre>(myproject)$ pip3 install pytz
+</pre></div>
+
+
+<p>Once it&#8217;s installed, I can verify it&#8217;s working with the same test import&nbsp;command.</p>
+<div class="highlight"><pre>(myproject)$ python3 -c &#39;import pytz&#39;
+(myproject)$
+</pre></div>
+
+
+<p>When you&#8217;re done with a virtual environment and want to go back to your default system, you use the <code>deactivate</code> command. This restores your environment to the system defaults, including the location of the <code>python3</code> command-line&nbsp;tool.</p>
+<div class="highlight"><pre>(myproject)$ deactivate
+$ which python3
+/usr/local/bin/python3
+</pre></div>
+
+
+<p>If you ever want to work in the <code>myproject</code> environment again, you can just run <code>source bin/activate</code> in the directory like&nbsp;before.</p>
+<h3>Reproducing&nbsp;Dependencies</h3>
+<p>Once you have a virtual environment, you can continue installing packages with <code>pip</code> as you need them. Eventually, you may want to copy your environment somewhere else. For example, say you want to reproduce your development environment on a production server. Or maybe you want to clone someone else&#8217;s environment on your own machine so you can run their&nbsp;code.</p>
+<p><code>pyvenv</code> makes these situations easy. You can use the <code>pip freeze</code> command to save all of your explicit package dependencies into a file. By convention this file is named <code>requirements.txt</code>.</p>
+<div class="highlight"><pre>(myproject)$ pip3 freeze &gt; requirements.txt
+(myproject)$ cat requirements.txt
+numpy==1.8.2
+pytz==2014.4
+requests==2.3.0
+</pre></div>
+
+
+<p>Now imagine you&#8217;d like to have another virtual environment that matches the <code>myproject</code> environment. You can create a new directory like before using <code>pyvenv</code> and <code>activate</code> it.</p>
+<div class="highlight"><pre>$ pyvenv /tmp/otherproject
+$ cd /tmp/otherproject
+$ source bin/activate
+(otherproject)$
+</pre></div>
+
+
+<p>The new environment will have no extra packages&nbsp;installed.</p>
+<div class="highlight"><pre>(otherproject)$ pip3 list
+pip (1.5.6)
+setuptools (2.1)
+</pre></div>
+
+
+<p>You can install all of the packages from the first environment by running <code>pip install</code> on the <code>requirements.txt</code> that you generated with the <code>pip freeze</code> command.</p>
+<div class="highlight"><pre>(otherproject)$ pip3 install -r /tmp/myproject/requirements.txt
+</pre></div>
+
+
+<p>This command will crank along for a little while as it retrieves and installs all of the packages required to reproduce the first environment. Once it&#8217;s done, listing the set of installed packages in the second virtual environment will produce the same list of dependencies found in the first virtual&nbsp;environment.</p>
+<div class="highlight"><pre>(otherproject)$ pip list
+numpy (1.8.2)
+pip (1.5.6)
+pytz (2014.4)
+requests (2.3.0)
+setuptools (2.1)
+</pre></div>
+
+
+<p>Using a <code>requirements.txt</code> file is ideal for collaborating with others through a revision control system. You can commit changes to your code at the same time you update your list of package dependencies, ensuring they move in&nbsp;lockstep.</p>
+<p>The gotcha with virtual environments is that moving them breaks everything because all of the paths, like <code>python3</code>, are hard-coded to the environment&#8217;s install directory. But that doesn&#8217;t matter. The whole purpose of virtual environments is to make it easy to reproduce the same setup. Instead of moving a virtual environment directory, just <code>freeze</code> the old one, create a new one somewhere else, and reinstall everything from the <code>requirements.txt</code> file.</p>
+<h3>Things to&nbsp;Remember</h3>
+<ul>
+<li>Virtual environments allow you to use <code>pip</code> to install many different versions of the same package on the same machine without&nbsp;conflicts.</li>
+<li>Virtual environments are created with <code>pyvenv</code>, enabled with <code>source bin/activate</code>, and disabled with <code>deactivate</code>.</li>
+<li>You can dump all of the requirements of an environment with <code>pip freeze</code>. You can reproduce the environment by supplying the <code>requirements.txt</code> file to <code>pip install -r</code>.</li>
+<li>In versions of Python before 3.4, the <code>pyvenv</code> tool must be downloaded and installed separately. The command-line tool is called <code>virtualenv</code> instead of <code>pyvenv</code>.</li>
+</ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</section>
+
+
+
+<section id="learn-more" class="content">
+
+
+<div class="page-content">
+    <div class="container">
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <p><br></p>
+<h2><em>If you enjoyed this, get the&nbsp;book</em></h2>
+<div>
+    <a href="http://amzn.to/1ylkKmc"><img src="http://www.effectivepython.com/images/cover.jpg" class="learn-more-photo" alt="EFfective Python Book Cover"></a>
+</div>
+
+<p><em>Effective Python</em> provides insight into the <em>Pythonic</em> way of writing programs: the best way to use Python. Novice programmers will learn the best practices of Python&#8217;s capabilities. Experienced programmers will learn how to embrace the strangeness of a new tool with confidence. Items include advice on what to do, what to avoid, how to strike the right balance, and why this is the best&nbsp;choice.</p>
+<p><a target="_blank" href="http://amzn.to/1ylkKmc" class="btn btn-info btn-lg">Preorder on&nbsp;Amazon</a></p>
+<p><a target="_blank" href="http://click.linksynergy.com/link?id=YvEWtFaKGwg&offerid=145238.2235742&type=2&murl=http%3A%2F%2Fwww.informit.com%2Ftitle%2F9780134034423" class="btn btn-info btn-lg">Preorder the&nbsp;eBook</a></p>
+<p><a href="/" class="btn btn-info btn-lg">Learn&nbsp;more</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</section>
+
+
+
+
+        <footer id="contentinfo" class="footer">
+            <div class="container">
+                <address id="about" class="vcard body">
+                    &copy; 2014 - 2015 <a class="url fn" href="http://www.onebigfluke.com">Brett Slatkin</a>
+                    <span class="footer-attribution"> &mdash; Powered by <a href="http://getpelican.com/">Pelican</a></span>
+                </address>
+            </div>
+        </footer>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+	var pageTracker = _gat._getTracker("UA-53888969-1");
+pageTracker._trackPageview();
+} catch(err) {}
+</script>
+    </body>
+</html>
