@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+            <title>Effective Python &rsaquo; Item 34: Register Class Existence with Metaclasses</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+            <script type="text/javascript" src="//use.typekit.net/wsb2ykq.js"></script>
+            <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+            <link href="http://www.effectivepython.com/theme/css/bootstrap.min.css" rel="stylesheet" />
+            <link href="http://www.effectivepython.com/theme/css/customize.css" rel="stylesheet" />
+            <link rel="icon" type="image/png" href="http://www.effectivepython.com/images/favicon.png">
+
+            <meta name="description" content="A common use of metaclasses is to automatically register types in your program. Registration is useful for doing reverse lookups, where you need to map a simple identifier back to a corresponding class.">
+
+            <meta name="twitter:card" content="summary">
+            <meta name="twitter:creator" content="@EffectivePython">
+            <meta name="twitter:domain" content="effectivepython.com">
+            <meta name="twitter:title" content="Effective Python &rsaquo; Item 34: Register Class Existence with Metaclasses">
+            <meta name="twitter:description" content="A common use of metaclasses is to automatically register types in your program. Registration is useful for doing reverse lookups, where you need to map a simple identifier back to a corresponding class.">
+            <meta name="twitter:img:src" content="http://www.effectivepython.com/images/cover.jpg">
+
+            <meta property="og:title" content="Effective Python &rsaquo; Item 34: Register Class Existence with Metaclasses">
+            <meta property="og:description" content="A common use of metaclasses is to automatically register types in your program. Registration is useful for doing reverse lookups, where you need to map a simple identifier back to a corresponding class.">
+            <meta property="og:image" content="http://www.effectivepython.com/images/cover.jpg">
+            <meta property="og:url" content="http://www.effectivepython.com/2015/02/02/register-class-existence-with-metaclasses/">
+
+            <link href="http://www.effectivepython.com/atom.xml" type="application/atom+xml" rel="alternate" title="Effective Python Atom Feed" />
+            <meta name="google-site-verification" content="SxIULiiLHOaU206Ix5AbXU_9g_JiWZrdyKeI46XRfOA">
+
+    </head>
+
+    <body>
+        <div class="header">
+            <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h1 class="site-title"><a href="http://www.effectivepython.com/"><span class="effective-type">Effective</span> <span class="python-p-type">P</class><span class="python-rest-type">ython</span></a></h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<section id="content" class="article content">
+
+<div class="title-bar">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Item 34: Register Class Existence with&nbsp;Metaclasses</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-muted published-container">
+                    <abbr class="published" title="2015-02-02T22:22:00-08:00">Mon 02 February 2015</abbr>
+                </div>
+                <div class="entry-content">
+                    <p><em>The following is a sample from the new book <a href="http://amzn.to/1ylkKmc">Effective Python</a>.</em><br><br></p>
+
+
+<p>A common use of metaclasses is to automatically register types in your program. Registration is useful for doing reverse lookups, where you need to map a simple identifier back to a corresponding class.</p>
+<p>For example, say you want to implement your own serialized representation of a Python object using <span class="caps">JSON</span>. You need a way to take an object and turn it into a <span class="caps">JSON</span> string. Here I do this generically by defining a base class that records the constructor parameters and turns them into a <span class="caps">JSON</span>&nbsp;dictionary.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Serializable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+
+    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s">&#39;args&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">})</span>
+</pre></div>
+
+
+<p>This class makes it easy to serialize simple, immutable data structures like <code>Point2D</code> to a&nbsp;string.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Point2D</span><span class="p">(</span><span class="n">Serializable</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="s">&#39;Point2D(</span><span class="si">%d</span><span class="s">, </span><span class="si">%d</span><span class="s">)&#39;</span> <span class="o">%</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">)</span>
+
+<span class="n">point</span> <span class="o">=</span> <span class="n">Point2D</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Object:    &#39;</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Serialized:&#39;</span><span class="p">,</span> <span class="n">point</span><span class="o">.</span><span class="n">serialize</span><span class="p">())</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+Object:     Point2D(5, 3)
+Serialized: {&quot;args&quot;: [5, 3]}
+</pre></div>
+
+
+<p>Now I need to deserialize this <span class="caps">JSON</span> string and construct the <code>Point2D</code> object it represents. Here I define another class that can deserialize the data from its <code>Serializable</code> parent&nbsp;class.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Deserializable</span><span class="p">(</span><span class="n">Serializable</span><span class="p">):</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">json_data</span><span class="p">):</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">])</span>
+</pre></div>
+
+
+<p>Using <code>Deserializable</code> makes it easy to serialize and deserialize simple, immutable objects in a generic&nbsp;way.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">BetterPoint2D</span><span class="p">(</span><span class="n">Deserializable</span><span class="p">):</span>
+    <span class="c"># ...</span>
+
+<span class="n">point</span> <span class="o">=</span> <span class="n">BetterPoint2D</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Before:    &#39;</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Serialized:&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="n">after</span> <span class="o">=</span> <span class="n">BetterPoint2D</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;After:     &#39;</span><span class="p">,</span> <span class="n">after</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+Before:     BetterPoint2D(5, 3)
+Serialized: {&quot;args&quot;: [5, 3]}
+After:      BetterPoint2D(5, 3)
+</pre></div>
+
+
+<p>The problem with this approach is it only works if you know the intended type of the serialized data ahead of time (e.g., <code>Point2D</code>, <code>BetterPoint2D</code>). Ideally you&#8217;d have a large number of classes serializing to <span class="caps">JSON</span> and one common function that could deserialize any of them back to a corresponding Python&nbsp;object.</p>
+<p>To do this, I can include the serialized object&#8217;s class name in the <span class="caps">JSON</span>&nbsp;data.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">BetterSerializable</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+
+    <span class="k">def</span> <span class="nf">serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+            <span class="s">&#39;class&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span>
+            <span class="s">&#39;args&#39;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">args</span><span class="p">,</span>
+        <span class="p">})</span>
+
+    <span class="k">def</span> <span class="nf">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c"># ...</span>
+</pre></div>
+
+
+<p>Then I can maintain a mapping of class names back to constructors for those objects. The general <code>deserialize</code> function will work for any classes passed to <code>register_class</code>.</p>
+<div class="highlight"><pre><span class="n">registry</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">def</span> <span class="nf">register_class</span><span class="p">(</span><span class="n">target_class</span><span class="p">):</span>
+    <span class="n">registry</span><span class="p">[</span><span class="n">target_class</span><span class="o">.</span><span class="n">__name__</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_class</span>
+
+<span class="k">def</span> <span class="nf">deserialize</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s">&#39;class&#39;</span><span class="p">]</span>
+    <span class="n">target_class</span> <span class="o">=</span> <span class="n">registry</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">target_class</span><span class="p">(</span><span class="o">*</span><span class="n">params</span><span class="p">[</span><span class="s">&#39;args&#39;</span><span class="p">])</span>
+</pre></div>
+
+
+<p>To ensure <code>deserialize</code> always works properly, I must call <code>register_class</code> for every class I may want to deserialize in the&nbsp;future.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">EvenBetterPoint2D</span><span class="p">(</span><span class="n">BetterSerializable</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+
+<span class="n">register_class</span><span class="p">(</span><span class="n">EvenBetterPoint2D</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Now I can deserialize an arbitrary <span class="caps">JSON</span> string without having to know which class it&nbsp;contains.</p>
+<div class="highlight"><pre><span class="n">point</span> <span class="o">=</span> <span class="n">EvenBetterPoint2D</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Before:    &#39;</span><span class="p">,</span> <span class="n">point</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Serialized:&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="n">after</span> <span class="o">=</span> <span class="n">deserialize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;After:     &#39;</span><span class="p">,</span> <span class="n">after</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+Before:     EvenBetterPoint2D(5, 3)
+Serialized: {&quot;class&quot;: &quot;EvenBetterPoint2D&quot;, &quot;args&quot;: [5, 3]}
+After:      EvenBetterPoint2D(5, 3)
+</pre></div>
+
+
+<p>The problem with this approach is that you can forget to call <code>register_class</code>.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Point3D</span><span class="p">(</span><span class="n">BetterSerializable</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span> <span class="o">=</span> <span class="n">x</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">y</span> <span class="o">=</span> <span class="n">y</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">z</span>
+
+<span class="c"># Forgot to call register_class! Whoops!</span>
+</pre></div>
+
+
+<p>This will cause your code to break at runtime, when you finally try to deserialize an object of a class you forgot to&nbsp;register.</p>
+<div class="highlight"><pre><span class="n">point</span> <span class="o">=</span> <span class="n">Point3D</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="o">-</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">point</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+<span class="n">deserialize</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+KeyError: &#39;Point3D&#39;
+</pre></div>
+
+
+<p>Even though you chose to subclass <code>BetterSerializable</code>, you won&#8217;t actually get all of its features if you forget to call <code>register_class</code> after your <code>class</code> statement body. This approach is error prone and especially challenging for beginners. The same omission can happen with <em>class decorators</em> in Python&nbsp;3.</p>
+<p>What if you could somehow act on the programmer&#8217;s intent to use <code>BetterSerializable</code> and ensure <code>register_class</code> is called in all cases? Metaclasses enable this by intercepting the <code>class</code> statement when subclasses are defined. This lets you register the new type immediately after the class&#8217;s&nbsp;body.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Meta</span><span class="p">(</span><span class="nb">type</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__new__</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">class_dict</span><span class="p">):</span>
+        <span class="n">cls</span> <span class="o">=</span> <span class="nb">type</span><span class="o">.</span><span class="n">__new__</span><span class="p">(</span><span class="n">meta</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">bases</span><span class="p">,</span> <span class="n">class_dict</span><span class="p">)</span>
+        <span class="n">register_class</span><span class="p">(</span><span class="n">cls</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">cls</span>
+
+<span class="k">class</span> <span class="nc">RegisteredSerializable</span><span class="p">(</span><span class="n">BetterSerializable</span><span class="p">,</span> <span class="n">metaclass</span><span class="o">=</span><span class="n">Meta</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+
+
+<p>When I define a subclass of <code>RegisteredSerializable</code>, I can be confident that the call to <code>register_class</code> happened and <code>deserialize</code> will always work as&nbsp;expected.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">Vector3D</span><span class="p">(</span><span class="n">RegisteredSerializable</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">x</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">y</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">z</span> <span class="o">=</span> <span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">z</span>
+
+<span class="n">v3</span> <span class="o">=</span> <span class="n">Vector3D</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="o">-</span><span class="mi">7</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Before:    &#39;</span><span class="p">,</span> <span class="n">v3</span><span class="p">)</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">v3</span><span class="o">.</span><span class="n">serialize</span><span class="p">()</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Serialized:&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;After:     &#39;</span><span class="p">,</span> <span class="n">deserialize</span><span class="p">(</span><span class="n">data</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+Before:     Vector3D(10, -7, 3)
+Serialized: {&quot;class&quot;: &quot;Vector3D&quot;, &quot;args&quot;: [10, -7, 3]}
+After:      Vector3D(10, -7, 3)
+</pre></div>
+
+
+<p>Using metaclasses for class registration ensures that you&#8217;ll never miss a class as long as the inheritance tree is right. This works well for serialization, as I&#8217;ve shown, and also applies to Database ORMs, plug-in systems, and system&nbsp;hooks.</p>
+<h3>Things to&nbsp;Remember</h3>
+<ul>
+<li>Class registration is a helpful pattern for building modular Python&nbsp;programs.</li>
+<li>Metaclasses let you run registration code automatically each time your base class is subclassed in a&nbsp;program.</li>
+<li>Using metaclasses for class registration avoids errors by ensuring that you never miss a registration&nbsp;call.</li>
+</ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</section>
+
+
+
+<section id="learn-more" class="content">
+
+
+<div class="page-content">
+    <div class="container">
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <p><br></p>
+<h2><em>If you enjoyed this, get the&nbsp;book</em></h2>
+<div>
+    <a href="http://amzn.to/1ylkKmc"><img src="http://www.effectivepython.com/images/cover.jpg" class="learn-more-photo" alt="EFfective Python Book Cover"></a>
+</div>
+
+<p><em>Effective Python</em> provides insight into the <em>Pythonic</em> way of writing programs: the best way to use Python. Novice programmers will learn the best practices of Python&#8217;s capabilities. Experienced programmers will learn how to embrace the strangeness of a new tool with confidence. Items include advice on what to do, what to avoid, how to strike the right balance, and why this is the best&nbsp;choice.</p>
+<p>The digital version of the book will be available on <strong>February 19th, 2015</strong>. The print copy will be available on <strong>March 6th</strong>.</p>
+<p><a target="_blank" href="http://amzn.to/1ylkKmc" class="btn btn-info btn-lg">Preorder on&nbsp;Amazon</a></p>
+<p><a target="_blank" href="http://click.linksynergy.com/link?id=YvEWtFaKGwg&offerid=145238.2235742&type=2&murl=http%3A%2F%2Fwww.informit.com%2Ftitle%2F9780134034423" class="btn btn-info btn-lg">Preorder the&nbsp;eBook</a></p>
+<p><a href="/" class="btn btn-info btn-lg">Learn&nbsp;more</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</section>
+
+
+
+
+        <footer id="contentinfo" class="footer">
+            <div class="container">
+                <address id="about" class="vcard body">
+                    &copy; 2014 - 2015 <a class="url fn" href="http://www.onebigfluke.com">Brett Slatkin</a>
+                    <span class="footer-attribution"> &mdash; Powered by <a href="http://getpelican.com/">Pelican</a></span>
+                </address>
+            </div>
+        </footer>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+	var pageTracker = _gat._getTracker("UA-53888969-1");
+pageTracker._trackPageview();
+} catch(err) {}
+</script>
+    </body>
+</html>

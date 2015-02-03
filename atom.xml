@@ -1,7 +1,504 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Effective Python</title><link href="http://www.effectivepython.com/" rel="alternate"></link><link href="http://www.effectivepython.com/atom.xml" rel="self"></link><id>http://www.effectivepython.com/</id><updated>2015-01-21T19:45:00-08:00</updated><entry><title>Item 53: Use Virtual Environments for Isolated and Reproducible Dependencies</title><link href="http://www.effectivepython.com/2015/01/21/use-virtual-environments-for-isolated-and-reproducible-dependencies/" rel="alternate"></link><updated>2015-01-21T19:45:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2015-01-21:2015/01/21/use-virtual-environments-for-isolated-and-reproducible-dependencies/</id><summary type="html">
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Effective Python</title><link href="http://www.effectivepython.com/" rel="alternate"></link><link href="http://www.effectivepython.com/atom.xml" rel="self"></link><id>http://www.effectivepython.com/</id><updated>2015-02-02T22:22:00-08:00</updated><entry><title>Item 34: Register Class Existence with Metaclasses</title><link href="http://www.effectivepython.com/2015/02/02/register-class-existence-with-metaclasses/" rel="alternate"></link><updated>2015-02-02T22:22:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2015-02-02:2015/02/02/register-class-existence-with-metaclasses/</id><summary type="html">&lt;p&gt;&lt;em&gt;The following is a sample from the new book &lt;a href="http://amzn.to/1ylkKmc"&gt;Effective Python&lt;/a&gt;.&lt;/em&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+
+
+&lt;p&gt;A common use of metaclasses is to automatically register types in your program. Registration is useful for doing reverse lookups, where you need to map a simple identifier back to a corresponding class.&lt;/p&gt;
+&lt;p&gt;For example, say you want to implement your own serialized representation of a Python object using &lt;span class="caps"&gt;JSON&lt;/span&gt;. You need a way to take an object and turn it into a &lt;span class="caps"&gt;JSON&lt;/span&gt; string. Here I do this generically by defining a base class that records the constructor parameters and turns them into a &lt;span class="caps"&gt;JSON&lt;/span&gt;&amp;nbsp;dictionary.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Serializable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;
+
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dumps&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;args&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;})&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This class makes it easy to serialize simple, immutable data structures like &lt;code&gt;Point2D&lt;/code&gt; to a&amp;nbsp;string.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Point2D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Serializable&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="nb"&gt;super&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;
+
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__repr__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;Point2D(&lt;/span&gt;&lt;span class="si"&gt;%d&lt;/span&gt;&lt;span class="s"&gt;, &lt;/span&gt;&lt;span class="si"&gt;%d&lt;/span&gt;&lt;span class="s"&gt;)&amp;#39;&lt;/span&gt; &lt;span class="o"&gt;%&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+
+&lt;span class="n"&gt;point&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Point2D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Object:    &amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Serialized:&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+Object:     Point2D(5, 3)
+Serialized: {&amp;quot;args&amp;quot;: [5, 3]}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now I need to deserialize this &lt;span class="caps"&gt;JSON&lt;/span&gt; string and construct the &lt;code&gt;Point2D&lt;/code&gt; object it represents. Here I define another class that can deserialize the data from its &lt;code&gt;Serializable&lt;/code&gt; parent&amp;nbsp;class.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Deserializable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Serializable&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="nd"&gt;@classmethod&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;deserialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cls&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;json_data&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;params&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loads&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;json_data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;cls&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;args&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Using &lt;code&gt;Deserializable&lt;/code&gt; makes it easy to serialize and deserialize simple, immutable objects in a generic&amp;nbsp;way.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BetterPoint2D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Deserializable&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="c"&gt;# ...&lt;/span&gt;
+
+&lt;span class="n"&gt;point&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;BetterPoint2D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Before:    &amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Serialized:&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;after&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;BetterPoint2D&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;deserialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;After:     &amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;after&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+Before:     BetterPoint2D(5, 3)
+Serialized: {&amp;quot;args&amp;quot;: [5, 3]}
+After:      BetterPoint2D(5, 3)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The problem with this approach is it only works if you know the intended type of the serialized data ahead of time (e.g., &lt;code&gt;Point2D&lt;/code&gt;, &lt;code&gt;BetterPoint2D&lt;/code&gt;). Ideally you&amp;#8217;d have a large number of classes serializing to &lt;span class="caps"&gt;JSON&lt;/span&gt; and one common function that could deserialize any of them back to a corresponding Python&amp;nbsp;object.&lt;/p&gt;
+&lt;p&gt;To do this, I can include the serialized object&amp;#8217;s class name in the &lt;span class="caps"&gt;JSON&lt;/span&gt;&amp;nbsp;data.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BetterSerializable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;
+
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;dumps&lt;/span&gt;&lt;span class="p"&gt;({&lt;/span&gt;
+            &lt;span class="s"&gt;&amp;#39;class&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;__class__&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+            &lt;span class="s"&gt;&amp;#39;args&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+        &lt;span class="p"&gt;})&lt;/span&gt;
+
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__repr__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="c"&gt;# ...&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Then I can maintain a mapping of class names back to constructors for those objects. The general &lt;code&gt;deserialize&lt;/code&gt; function will work for any classes passed to &lt;code&gt;register_class&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;registry&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;register_class&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;target_class&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;registry&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;target_class&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;__name__&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;target_class&lt;/span&gt;
+
+&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;deserialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;params&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;json&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;loads&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;name&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;class&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="n"&gt;target_class&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;registry&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;target_class&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;params&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;args&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To ensure &lt;code&gt;deserialize&lt;/code&gt; always works properly, I must call &lt;code&gt;register_class&lt;/code&gt; for every class I may want to deserialize in the&amp;nbsp;future.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;EvenBetterPoint2D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;BetterSerializable&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="nb"&gt;super&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;
+
+&lt;span class="n"&gt;register_class&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;EvenBetterPoint2D&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now I can deserialize an arbitrary &lt;span class="caps"&gt;JSON&lt;/span&gt; string without having to know which class it&amp;nbsp;contains.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;point&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;EvenBetterPoint2D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Before:    &amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Serialized:&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;after&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;deserialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;After:     &amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;after&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+Before:     EvenBetterPoint2D(5, 3)
+Serialized: {&amp;quot;class&amp;quot;: &amp;quot;EvenBetterPoint2D&amp;quot;, &amp;quot;args&amp;quot;: [5, 3]}
+After:      EvenBetterPoint2D(5, 3)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The problem with this approach is that you can forget to call &lt;code&gt;register_class&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Point3D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;BetterSerializable&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="nb"&gt;super&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;z&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;
+
+&lt;span class="c"&gt;# Forgot to call register_class! Whoops!&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This will cause your code to break at runtime, when you finally try to deserialize an object of a class you forgot to&amp;nbsp;register.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;point&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Point3D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;point&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;deserialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+KeyError: &amp;#39;Point3D&amp;#39;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Even though you chose to subclass &lt;code&gt;BetterSerializable&lt;/code&gt;, you won&amp;#8217;t actually get all of its features if you forget to call &lt;code&gt;register_class&lt;/code&gt; after your &lt;code&gt;class&lt;/code&gt; statement body. This approach is error prone and especially challenging for beginners. The same omission can happen with &lt;em&gt;class decorators&lt;/em&gt; in Python&amp;nbsp;3.&lt;/p&gt;
+&lt;p&gt;What if you could somehow act on the programmer&amp;#8217;s intent to use &lt;code&gt;BetterSerializable&lt;/code&gt; and ensure &lt;code&gt;register_class&lt;/code&gt; is called in all cases? Metaclasses enable this by intercepting the &lt;code&gt;class&lt;/code&gt; statement when subclasses are defined. This lets you register the new type immediately after the class&amp;#8217;s&amp;nbsp;body.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Meta&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__new__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;meta&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;class_dict&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="n"&gt;cls&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;type&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;__new__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;meta&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;bases&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;class_dict&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="n"&gt;register_class&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;cls&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;cls&lt;/span&gt;
+
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;RegisteredSerializable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;BetterSerializable&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;metaclass&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="n"&gt;Meta&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;pass&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;When I define a subclass of &lt;code&gt;RegisteredSerializable&lt;/code&gt;, I can be confident that the call to &lt;code&gt;register_class&lt;/code&gt; happened and &lt;code&gt;deserialize&lt;/code&gt; will always work as&amp;nbsp;expected.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Vector3D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;RegisteredSerializable&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="nb"&gt;super&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;z&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;z&lt;/span&gt;
+
+&lt;span class="n"&gt;v3&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;Vector3D&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Before:    &amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;v3&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;data&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;v3&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Serialized:&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;After:     &amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;deserialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+Before:     Vector3D(10, -7, 3)
+Serialized: {&amp;quot;class&amp;quot;: &amp;quot;Vector3D&amp;quot;, &amp;quot;args&amp;quot;: [10, -7, 3]}
+After:      Vector3D(10, -7, 3)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Using metaclasses for class registration ensures that you&amp;#8217;ll never miss a class as long as the inheritance tree is right. This works well for serialization, as I&amp;#8217;ve shown, and also applies to Database ORMs, plug-in systems, and system&amp;nbsp;hooks.&lt;/p&gt;
+&lt;h3&gt;Things to&amp;nbsp;Remember&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Class registration is a helpful pattern for building modular Python&amp;nbsp;programs.&lt;/li&gt;
+&lt;li&gt;Metaclasses let you run registration code automatically each time your base class is subclassed in a&amp;nbsp;program.&lt;/li&gt;
+&lt;li&gt;Using metaclasses for class registration avoids errors by ensuring that you never miss a registration&amp;nbsp;call.&lt;/li&gt;
+&lt;/ul&gt;</summary></entry><entry><title>Item 53: Use Virtual Environments for Isolated and Reproducible Dependencies</title><link href="http://www.effectivepython.com/2015/01/21/use-virtual-environments-for-isolated-and-reproducible-dependencies/" rel="alternate"></link><updated>2015-01-21T19:45:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2015-01-21:2015/01/21/use-virtual-environments-for-isolated-and-reproducible-dependencies/</id><summary type="html">&lt;p&gt;&lt;em&gt;The following is a sample from the new book &lt;a href="/"&gt;Effective Python&lt;/a&gt;.&lt;/em&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+
 
 &lt;p&gt;Building larger and more complex programs often leads you to rely on various packages from the Python community. You&amp;#8217;ll find yourself running &lt;code&gt;pip&lt;/code&gt; to install packages like &lt;code&gt;pytz&lt;/code&gt;, &lt;code&gt;numpy&lt;/code&gt;, and many&amp;nbsp;others.&lt;/p&gt;
-&lt;p&gt;The problem is that by default &lt;code&gt;pip&lt;/code&gt; installs new packages in a global location. That causes all Python programs on your system to be affected by these installed modules. In theory, this shouldn&amp;#8217;t be an issue. If you install a package and never &lt;code&gt;import&lt;/code&gt; it, how could it affect your programs?</summary></entry><entry><title>Item 17: Be Defensive When Iterating Over Arguments</title><link href="http://www.effectivepython.com/2015/01/03/be-defensive-when-iterating-over-arguments/" rel="alternate"></link><updated>2014-12-05T23:30:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2015-01-03:2015/01/03/be-defensive-when-iterating-over-arguments/</id><summary type="html">
+&lt;p&gt;The problem is that by default &lt;code&gt;pip&lt;/code&gt; installs new packages in a global location. That causes all Python programs on your system to be affected by these installed modules. In theory, this shouldn&amp;#8217;t be an issue. If you install a package and never &lt;code&gt;import&lt;/code&gt; it, how could it affect your programs?&lt;/p&gt;
+&lt;p&gt;The trouble comes from transitive dependencies: the packages that the packages you install depend on. For example, you can see what the &lt;code&gt;Sphinx&lt;/code&gt; package depends on after installing it by asking &lt;code&gt;pip&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;$ pip3 show Sphinx
+---
+Name: Sphinx
+Version: 1.2.2
+Location: /usr/local/lib/python3.4/site-packages
+Requires: docutils, Jinja2, Pygments
+&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;When a function takes a list of objects as a parameter, it&amp;#8217;s often important to iterate over that list multiple times.</summary></entry><entry><title>The Rough Cut Is Online</title><link href="http://www.effectivepython.com/2014/12/18/rough-cut-is-online/" rel="alternate"></link><updated>2014-12-18T19:15:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2014-12-18:2014/12/18/rough-cut-is-online/</id><summary type="html">&lt;p&gt;Can&amp;#8217;t wait until next year for the book to be published? The rough cut is now &lt;a href="http://safari.informit.com/9780134034416"&gt;available on Safari Books Online&lt;/a&gt;. This is an early preview of the full content of the book before editing has been&amp;nbsp;completed.&lt;/p&gt;</summary></entry><entry><title>Now Available for Preorder</title><link href="http://www.effectivepython.com/2014/12/04/preorder-the-book/" rel="alternate"></link><updated>2014-12-04T23:45:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2014-12-04:2014/12/04/preorder-the-book/</id><summary type="html">&lt;p&gt;&lt;em&gt;Effective Python&lt;/em&gt; is now available for preorder on Amazon. &lt;a href="http://amzn.to/1ylkKmc"&gt;Follow this link to buy your copy in advance&lt;/a&gt;. It will ship in early 2015 once the book is&amp;nbsp;published.&lt;/p&gt;</summary></entry><entry><title>Final Draft Done</title><link href="http://www.effectivepython.com/2014/11/16/final-draft-done/" rel="alternate"></link><updated>2014-11-16T00:30:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2014-11-16:2014/11/16/final-draft-done/</id><summary type="html">&lt;p&gt;The final draft of the book is done. It&amp;#8217;s 55,000 words, 250+ pages, 8 chapters, 59 items. Reviewers spent a lot of time looking over earlier drafts to ensure that the book will be useful. Now it&amp;#8217;s off to production to be turned into a printable&amp;nbsp;layout.&lt;/p&gt;</summary></entry><entry><title>Welcome</title><link href="http://www.effectivepython.com/2014/08/18/welcome-to-effective-python/" rel="alternate"></link><updated>2014-08-18T09:45:00-07:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2014-08-18:2014/08/18/welcome-to-effective-python/</id><summary type="html">&lt;p&gt;This website is now live! Here you&amp;#8217;ll find updates about my progress towards &lt;em&gt;Effective Python&lt;/em&gt;&amp;#8216;s eventual publishing by Addison-Wesley. You can find other books from the &lt;em&gt;Effective&lt;/em&gt; series &lt;a href="http://www.informit.com/imprint/series_detail.aspx?st=61267"&gt;in Pearson&amp;#8217;s online store&lt;/a&gt;.&lt;/p&gt;</summary></entry></feed>
+
+&lt;p&gt;If you install another package like &lt;code&gt;flask&lt;/code&gt;, you can see that it too depends on the &lt;code&gt;Jinja2&lt;/code&gt; package.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;$ pip3 show flask
+---
+Name: Flask
+Version: 0.10.1
+Location: /usr/local/lib/python3.4/site-packages
+Requires: Werkzeug, Jinja2, itsdangerous
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The conflict arises as &lt;code&gt;Sphinx&lt;/code&gt; and &lt;code&gt;flask&lt;/code&gt; diverge over time. Perhaps right now they both require the same version of &lt;code&gt;Jinja2&lt;/code&gt; and everything is fine. But six months or a year from now, &lt;code&gt;Jinja2&lt;/code&gt; may release a new version that makes breaking changes to users of the library. If you update your global version of &lt;code&gt;Jinja2&lt;/code&gt; with &lt;code&gt;pip install --upgrade&lt;/code&gt;, you may find that &lt;code&gt;Sphinx&lt;/code&gt; breaks while &lt;code&gt;flask&lt;/code&gt; keeps&amp;nbsp;working.&lt;/p&gt;
+&lt;p&gt;The cause of this breakage is that Python can only have a single global version of a module installed at a time. If one of your installed packages must use the new version and another package must use the old version, your system isn&amp;#8217;t going to work&amp;nbsp;properly.&lt;/p&gt;
+&lt;p&gt;Such breakage can even happen when package maintainers try their best to preserve &lt;span class="caps"&gt;API&lt;/span&gt; compatibility between releases. New versions of a library can subtly change behaviors that &lt;span class="caps"&gt;API&lt;/span&gt; consuming code relies on. Users on a system may upgrade one package to a new version but not others, breaking dependencies. There&amp;#8217;s a constant risk of the ground moving beneath your&amp;nbsp;feet.&lt;/p&gt;
+&lt;p&gt;These difficulties are magnified when you collaborate with other developers who do their work on separate computers. It&amp;#8217;s reasonable to assume that the versions of Python and global packages they have installed on their machines will be slightly different than your own. This can cause frustrating situations where a codebase works perfectly on one programmer&amp;#8217;s machine and is completely broken on&amp;nbsp;another&amp;#8217;s.&lt;/p&gt;
+&lt;p&gt;The solution to all of these problems is a tool called &lt;code&gt;pyvenv&lt;/code&gt;, which provides &lt;em&gt;virtual environments&lt;/em&gt;. Since Python 3.4, the &lt;code&gt;pyvenv&lt;/code&gt; command-line tool is available by default along with the Python installation (it&amp;#8217;s also accessible with &lt;code&gt;python -m venv&lt;/code&gt;). Prior versions of Python require installing a separate package (with &lt;code&gt;pip install virtualenv&lt;/code&gt;) and using a command-line tool called &lt;code&gt;virtualenv&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;pyvenv&lt;/code&gt; allows you to create isolated versions of the Python environment. Using &lt;code&gt;pyvenv&lt;/code&gt;, you can have many different versions of the same package installed on the same system at the same time without conflicts. This lets you work on many different projects and use many different tools on the same&amp;nbsp;computer.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;pyvenv&lt;/code&gt; does this by installing explicit versions of packages and their dependencies into completely separate directory structures. This makes it possible to reproduce a Python environment that you know will work with your code. It&amp;#8217;s a reliable way to avoid surprising&amp;nbsp;breakages.&lt;/p&gt;
+&lt;h3&gt;The &lt;code&gt;pyvenv&lt;/code&gt; Command&lt;/h3&gt;
+&lt;p&gt;Here&amp;#8217;s a quick tutorial on how to use &lt;code&gt;pyvenv&lt;/code&gt; effectively. Before using the tool, it&amp;#8217;s important to note the meaning of the &lt;code&gt;python3&lt;/code&gt; command-line on your system. On my computer, &lt;code&gt;python3&lt;/code&gt; is located in the &lt;code&gt;/usr/local/bin&lt;/code&gt; directory and evaluates to version&amp;nbsp;3.4.2.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;$ which python3
+/usr/local/bin/python3
+$ python3 --version
+Python 3.4.2
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To demonstrate the setup of my environment, I can test that running a command to import the &lt;code&gt;pytz&lt;/code&gt; module doesn&amp;#8217;t cause an error. This works because I already have the &lt;code&gt;pytz&lt;/code&gt; package installed as a global&amp;nbsp;module.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;$ python3 -c &amp;#39;import pytz&amp;#39;
+$
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now I use &lt;code&gt;pyvenv&lt;/code&gt; to create a new virtual environment called &lt;code&gt;myproject&lt;/code&gt;. Each virtual environment must live in its own unique directory. The result of the command is a tree of directories and&amp;nbsp;files.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;$ pyvenv /tmp/myproject
+$ cd /tmp/myproject
+$ ls
+bin     include     lib     pyvenv.cfg
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To start using the virtual environment, I use the &lt;code&gt;source&lt;/code&gt; command from my shell on the &lt;code&gt;bin/activate&lt;/code&gt; script. &lt;code&gt;activate&lt;/code&gt; modifies all of my environment variables to match the virtual environment. It also updates my command-line prompt to include the virtual environment name (&lt;code&gt;'myproject'&lt;/code&gt;) to make it extremely clear what I&amp;#8217;m working&amp;nbsp;on.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;$ source bin/activate
+(myproject)$
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;After activation, you can see that the path to the &lt;code&gt;python3&lt;/code&gt; command-line tool has moved to within the virtual environment&amp;nbsp;directory.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;(myproject)$ which python3
+/tmp/myproject/bin/python3
+(myproject)$ ls -l /tmp/myproject/bin/python3
+... -&amp;gt; /tmp/myproject/bin/python3.4
+(myproject)$ ls -l /tmp/myproject/bin/python3.4
+... -&amp;gt; /usr/local/bin/python3.4
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This ensures that changes to the outside system will not affect the virtual environment. Even if the outer system upgrades its default &lt;code&gt;python3&lt;/code&gt; to version 3.5, my virtual environment will still explicitly point at version&amp;nbsp;3.4.&lt;/p&gt;
+&lt;p&gt;The virtual environment I created with &lt;code&gt;pyvenv&lt;/code&gt; starts with no packages installed except for &lt;code&gt;pip&lt;/code&gt; and &lt;code&gt;setuptools&lt;/code&gt;. Trying to use the &lt;code&gt;pytz&lt;/code&gt; package that was installed as a global module in the outside system will fail because it&amp;#8217;s unknown to the virtual&amp;nbsp;environment.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;(myproject)$ python3 -c &amp;#39;import pytz&amp;#39;
+Traceback (most recent call last):
+  File &amp;quot;&amp;lt;string&amp;gt;&amp;quot;, line 1, in &amp;lt;module&amp;gt;
+ImportError: No module named &amp;#39;pytz&amp;#39;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I can use &lt;code&gt;pip&lt;/code&gt; to install the &lt;code&gt;pytz&lt;/code&gt; module into my virtual&amp;nbsp;environment.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;(myproject)$ pip3 install pytz
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Once it&amp;#8217;s installed, I can verify it&amp;#8217;s working with the same test import&amp;nbsp;command.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;(myproject)$ python3 -c &amp;#39;import pytz&amp;#39;
+(myproject)$
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;When you&amp;#8217;re done with a virtual environment and want to go back to your default system, you use the &lt;code&gt;deactivate&lt;/code&gt; command. This restores your environment to the system defaults, including the location of the &lt;code&gt;python3&lt;/code&gt; command-line&amp;nbsp;tool.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;(myproject)$ deactivate
+$ which python3
+/usr/local/bin/python3
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If you ever want to work in the &lt;code&gt;myproject&lt;/code&gt; environment again, you can just run &lt;code&gt;source bin/activate&lt;/code&gt; in the directory like&amp;nbsp;before.&lt;/p&gt;
+&lt;h3&gt;Reproducing&amp;nbsp;Dependencies&lt;/h3&gt;
+&lt;p&gt;Once you have a virtual environment, you can continue installing packages with &lt;code&gt;pip&lt;/code&gt; as you need them. Eventually, you may want to copy your environment somewhere else. For example, say you want to reproduce your development environment on a production server. Or maybe you want to clone someone else&amp;#8217;s environment on your own machine so you can run their&amp;nbsp;code.&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;pyvenv&lt;/code&gt; makes these situations easy. You can use the &lt;code&gt;pip freeze&lt;/code&gt; command to save all of your explicit package dependencies into a file. By convention this file is named &lt;code&gt;requirements.txt&lt;/code&gt;.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;(myproject)$ pip3 freeze &amp;gt; requirements.txt
+(myproject)$ cat requirements.txt
+numpy==1.8.2
+pytz==2014.4
+requests==2.3.0
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now imagine you&amp;#8217;d like to have another virtual environment that matches the &lt;code&gt;myproject&lt;/code&gt; environment. You can create a new directory like before using &lt;code&gt;pyvenv&lt;/code&gt; and &lt;code&gt;activate&lt;/code&gt; it.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;$ pyvenv /tmp/otherproject
+$ cd /tmp/otherproject
+$ source bin/activate
+(otherproject)$
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The new environment will have no extra packages&amp;nbsp;installed.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;(otherproject)$ pip3 list
+pip (1.5.6)
+setuptools (2.1)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;You can install all of the packages from the first environment by running &lt;code&gt;pip install&lt;/code&gt; on the &lt;code&gt;requirements.txt&lt;/code&gt; that you generated with the &lt;code&gt;pip freeze&lt;/code&gt; command.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;(otherproject)$ pip3 install -r /tmp/myproject/requirements.txt
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This command will crank along for a little while as it retrieves and installs all of the packages required to reproduce the first environment. Once it&amp;#8217;s done, listing the set of installed packages in the second virtual environment will produce the same list of dependencies found in the first virtual&amp;nbsp;environment.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;(otherproject)$ pip list
+numpy (1.8.2)
+pip (1.5.6)
+pytz (2014.4)
+requests (2.3.0)
+setuptools (2.1)
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Using a &lt;code&gt;requirements.txt&lt;/code&gt; file is ideal for collaborating with others through a revision control system. You can commit changes to your code at the same time you update your list of package dependencies, ensuring they move in&amp;nbsp;lockstep.&lt;/p&gt;
+&lt;p&gt;The gotcha with virtual environments is that moving them breaks everything because all of the paths, like &lt;code&gt;python3&lt;/code&gt;, are hard-coded to the environment&amp;#8217;s install directory. But that doesn&amp;#8217;t matter. The whole purpose of virtual environments is to make it easy to reproduce the same setup. Instead of moving a virtual environment directory, just &lt;code&gt;freeze&lt;/code&gt; the old one, create a new one somewhere else, and reinstall everything from the &lt;code&gt;requirements.txt&lt;/code&gt; file.&lt;/p&gt;
+&lt;h3&gt;Things to&amp;nbsp;Remember&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Virtual environments allow you to use &lt;code&gt;pip&lt;/code&gt; to install many different versions of the same package on the same machine without&amp;nbsp;conflicts.&lt;/li&gt;
+&lt;li&gt;Virtual environments are created with &lt;code&gt;pyvenv&lt;/code&gt;, enabled with &lt;code&gt;source bin/activate&lt;/code&gt;, and disabled with &lt;code&gt;deactivate&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;You can dump all of the requirements of an environment with &lt;code&gt;pip freeze&lt;/code&gt;. You can reproduce the environment by supplying the &lt;code&gt;requirements.txt&lt;/code&gt; file to &lt;code&gt;pip install -r&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;In versions of Python before 3.4, the &lt;code&gt;pyvenv&lt;/code&gt; tool must be downloaded and installed separately. The command-line tool is called &lt;code&gt;virtualenv&lt;/code&gt; instead of &lt;code&gt;pyvenv&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;</summary></entry><entry><title>Item 17: Be Defensive When Iterating Over Arguments</title><link href="http://www.effectivepython.com/2015/01/03/be-defensive-when-iterating-over-arguments/" rel="alternate"></link><updated>2014-12-05T23:30:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2015-01-03:2015/01/03/be-defensive-when-iterating-over-arguments/</id><summary type="html">&lt;p&gt;&lt;em&gt;The following is a sample from the new book &lt;a href="/"&gt;Effective Python&lt;/a&gt;.&lt;/em&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+
+
+&lt;p&gt;When a function takes a list of objects as a parameter, it&amp;#8217;s often important to iterate over that list multiple times. For example, say you want to analyze tourism numbers for the &lt;span class="caps"&gt;U.S.&lt;/span&gt; State of Texas. Imagine the data set is the number of visitors to each city (in millions per year). You&amp;#8217;d like to figure out what percentage of overall tourism each city&amp;nbsp;receives.&lt;/p&gt;
+&lt;p&gt;To do this you need a normalization function. It sums the inputs to figure out the total number of tourists per year. Then it divides each city&amp;#8217;s individual visitor count by the total to find that city&amp;#8217;s contribution to the&amp;nbsp;whole.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;normalize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;percent&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;total&lt;/span&gt;
+        &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;percent&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This function works when given a list of&amp;nbsp;visits.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;visits&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;35&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;percentages&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;normalize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;visits&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;percentages&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+[11.538461538461538, 26.923076923076923, 61.53846153846154]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To scale this up, I need to read the data from a file that contains every city in all of Texas. I define a generator to do this because then I can reuse the same function later when I want to compute tourism numbers for the whole world, a much larger data&amp;nbsp;set.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;read_visits&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data_path&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;data_path&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Surprisingly, calling &lt;code&gt;normalize&lt;/code&gt; on the generator&amp;#8217;s return value produces no&amp;nbsp;results.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;read_visits&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;/tmp/my_numbers.txt&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;percentages&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;normalize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;percentages&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+[]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The cause of this behavior is that an iterator only produces its results a single time. If you iterate over an iterator or generator that has already raised a &lt;code&gt;StopIteration&lt;/code&gt; exception, you won&amp;#8217;t get any results the second time&amp;nbsp;around.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;read_visits&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;/tmp/my_numbers.txt&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;  &lt;span class="c"&gt;# Already exhausted&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+[15, 35, 80]
+[]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;What&amp;#8217;s confusing is that you also won&amp;#8217;t get any errors when you iterate over an already-exhausted iterator. &lt;code&gt;for&lt;/code&gt; loops, the &lt;code&gt;list&lt;/code&gt; constructor, and many other functions throughout the Python standard library expect the &lt;code&gt;StopIteration&lt;/code&gt; exception to be raised during normal operation. These functions can&amp;#8217;t tell the difference between an iterator that has no output and an iterator that had output and is now&amp;nbsp;exhausted.&lt;/p&gt;
+&lt;p&gt;To solve this problem, you can explicitly exhaust an input iterator and keep a copy of its entire contents in a list. You can then iterate over the list version of the data as many times as you need to. Here&amp;#8217;s the same function as before, but it defensively copies the input&amp;nbsp;iterator.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;normalize_copy&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;numbers&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;list&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c"&gt;# Copy the iterator&lt;/span&gt;
+    &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;percent&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;total&lt;/span&gt;
+        &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;percent&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now the function works correctly on a generator&amp;#8217;s return&amp;nbsp;value.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;read_visits&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;/tmp/my_numbers.txt&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;percentages&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;normalize_copy&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;percentages&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+[11.538461538461538, 26.923076923076923, 61.53846153846154]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The problem with this approach is the copy of the input iterator&amp;#8217;s contents could be large. Copying the iterator could cause your program to run out of memory and crash. One way around this is to accept a function that returns a new iterator each time it&amp;#8217;s&amp;nbsp;called. &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;normalize_func&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;get_iter&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;get_iter&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;   &lt;span class="c"&gt;# New iterator&lt;/span&gt;
+    &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;get_iter&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;  &lt;span class="c"&gt;# New iterator&lt;/span&gt;
+        &lt;span class="n"&gt;percent&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;total&lt;/span&gt;
+        &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;percent&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To use &lt;code&gt;normalize_func&lt;/code&gt;, you can pass in a &lt;code&gt;lambda&lt;/code&gt; expression that calls the generator and produces a new iterator each&amp;nbsp;time.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;percentages&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;normalize_func&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;lambda&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;read_visits&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Though it works, having to pass a lambda function like this is clumsy. The better way to achieve the same result is to provide a new container class that implements the &lt;em&gt;iterator protocol&lt;/em&gt;.&lt;/p&gt;
+&lt;p&gt;The iterator protocol is how Python &lt;code&gt;for&lt;/code&gt; loops and related expressions traverse the contents of a container type. When Python sees a statement like &lt;code&gt;for x in foo&lt;/code&gt; it will actually call &lt;code&gt;iter(foo)&lt;/code&gt;. The &lt;code&gt;iter&lt;/code&gt; built-in function calls the &lt;code&gt;foo.__iter__&lt;/code&gt; special method in turn. The &lt;code&gt;__iter__&lt;/code&gt; method must return an iterator object (which itself implements the &lt;code&gt;__next__&lt;/code&gt; special method). Then the &lt;code&gt;for&lt;/code&gt; loop repeatedly calls the &lt;code&gt;next&lt;/code&gt; built-in function on the iterator object until it&amp;#8217;s exhausted (and raises a &lt;code&gt;StopIteration&lt;/code&gt; exception).&lt;/p&gt;
+&lt;p&gt;It sounds complicated, but practically speaking you can achieve all of this behavior for your classes by implementing the &lt;code&gt;__iter__&lt;/code&gt; method as a generator. Here I define an iterable container class that reads the files containing tourism&amp;nbsp;data.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;ReadVisits&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;data_path&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data_path&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;data_path&lt;/span&gt;
+
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__iter__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="nb"&gt;open&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;data_path&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;as&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+            &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;line&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;f&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+                &lt;span class="k"&gt;yield&lt;/span&gt; &lt;span class="nb"&gt;int&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;line&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This new container type works correctly when passed to the original function without any&amp;nbsp;modifications.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;visits&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ReadVisits&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;percentages&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;normalize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;visits&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;percentages&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+[11.538461538461538, 26.923076923076923, 61.53846153846154]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This works because the &lt;code&gt;sum&lt;/code&gt; method in &lt;code&gt;normalize&lt;/code&gt; will call &lt;code&gt;ReadVisits.__iter__&lt;/code&gt; to allocate a new iterator object. The &lt;code&gt;for&lt;/code&gt; loop to normalize the numbers will also call &lt;code&gt;__iter__&lt;/code&gt; to allocate a second iterator object. Each of those iterators will be advanced and exhausted independently, ensuring that each unique iteration sees all of the input data values. The only downside of this approach is it reads the input data multiple&amp;nbsp;times.&lt;/p&gt;
+&lt;p&gt;Now that you know how containers like &lt;code&gt;ReadVisits&lt;/code&gt; work, you can write your functions to ensure that parameters aren&amp;#8217;t just iterators. The protocol states that when an iterator is passed to the &lt;code&gt;iter&lt;/code&gt; built-in function, &lt;code&gt;iter&lt;/code&gt; will return the iterator itself. In contrast, when a container type is passed to &lt;code&gt;iter&lt;/code&gt;, a new iterator object will be returned each time. Thus, you can test an input value for this behavior and raise a &lt;code&gt;TypeError&lt;/code&gt; to reject&amp;nbsp;iterators.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;normalize_defensive&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nb"&gt;iter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="ow"&gt;is&lt;/span&gt; &lt;span class="nb"&gt;iter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;  &lt;span class="c"&gt;# An iterator -- bad!&lt;/span&gt;
+        &lt;span class="k"&gt;raise&lt;/span&gt; &lt;span class="ne"&gt;TypeError&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Must supply a container&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;total&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;sum&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;numbers&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;percent&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;100&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt; &lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="n"&gt;total&lt;/span&gt;
+        &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;percent&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This is ideal if you you don&amp;#8217;t want to copy the full input iterator like &lt;code&gt;normalize_copy&lt;/code&gt; above, but you also need to iterate over the input data multiple times. This function works as expected for &lt;code&gt;list&lt;/code&gt; and &lt;code&gt;ReadVisits&lt;/code&gt; inputs because they are containers. It will work for any type of container that follows the iterator&amp;nbsp;protocol.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;visits&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;15&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;35&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;80&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;normalize_defensive&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;visits&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c"&gt;# No error&lt;/span&gt;
+&lt;span class="n"&gt;visits&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;ReadVisits&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;path&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;normalize_defensive&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;visits&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c"&gt;# No error&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The function will raise an exception if the input is iterable but not a&amp;nbsp;container.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="nb"&gt;iter&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;visits&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="n"&gt;normalize_defensive&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+TypeError: Must supply a container
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h3&gt;Things to&amp;nbsp;Remember&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Beware of functions that iterate over input arguments multiple times. If these arguments are iterators you may see strange behavior and missing&amp;nbsp;values.&lt;/li&gt;
+&lt;li&gt;Python&amp;#8217;s iterator protocol defines how containers and iterators interact with the &lt;code&gt;iter&lt;/code&gt; and &lt;code&gt;next&lt;/code&gt; built-in functions, &lt;code&gt;for&lt;/code&gt; loops, and related&amp;nbsp;expressions.&lt;/li&gt;
+&lt;li&gt;You can easily define your own iterable container type by implementing the &lt;code&gt;__iter__&lt;/code&gt; method as a&amp;nbsp;generator.&lt;/li&gt;
+&lt;li&gt;You can detect that a value is an iterator (instead of a container) if calling &lt;code&gt;iter&lt;/code&gt; on it twice produces the same result, which can then be progress with the &lt;code&gt;next&lt;/code&gt; built-in&amp;nbsp;function.&lt;/li&gt;
+&lt;/ul&gt;</summary></entry><entry><title>The Rough Cut Is Online</title><link href="http://www.effectivepython.com/2014/12/18/rough-cut-is-online/" rel="alternate"></link><updated>2014-12-18T19:15:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2014-12-18:2014/12/18/rough-cut-is-online/</id><summary type="html">&lt;p&gt;Can&amp;#8217;t wait until next year for the book to be published? The rough cut is now &lt;a href="http://safari.informit.com/9780134034416"&gt;available on Safari Books Online&lt;/a&gt;. This is an early preview of the full content of the book before editing has been&amp;nbsp;completed.&lt;/p&gt;</summary></entry><entry><title>Now Available for Preorder</title><link href="http://www.effectivepython.com/2014/12/04/preorder-the-book/" rel="alternate"></link><updated>2014-12-04T23:45:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2014-12-04:2014/12/04/preorder-the-book/</id><summary type="html">&lt;p&gt;&lt;em&gt;Effective Python&lt;/em&gt; is now available for preorder on Amazon. &lt;a href="http://amzn.to/1ylkKmc"&gt;Follow this link to buy your copy in advance&lt;/a&gt;. It will ship in early 2015 once the book is&amp;nbsp;published.&lt;/p&gt;</summary></entry><entry><title>Final Draft Done</title><link href="http://www.effectivepython.com/2014/11/16/final-draft-done/" rel="alternate"></link><updated>2014-11-16T00:30:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2014-11-16:2014/11/16/final-draft-done/</id><summary type="html">&lt;p&gt;The final draft of the book is done. It&amp;#8217;s 55,000 words, 250+ pages, 8 chapters, 59 items. Reviewers spent a lot of time looking over earlier drafts to ensure that the book will be useful. Now it&amp;#8217;s off to production to be turned into a printable&amp;nbsp;layout.&lt;/p&gt;</summary></entry><entry><title>Welcome</title><link href="http://www.effectivepython.com/2014/08/18/welcome-to-effective-python/" rel="alternate"></link><updated>2014-08-18T09:45:00-07:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2014-08-18:2014/08/18/welcome-to-effective-python/</id><summary type="html">&lt;p&gt;This website is now live! Here you&amp;#8217;ll find updates about my progress towards &lt;em&gt;Effective Python&lt;/em&gt;&amp;#8216;s eventual publishing by Addison-Wesley. You can find other books from the &lt;em&gt;Effective&lt;/em&gt; series &lt;a href="http://www.informit.com/imprint/series_detail.aspx?st=61267"&gt;in Pearson&amp;#8217;s online store&lt;/a&gt;.&lt;/p&gt;</summary></entry></feed>
