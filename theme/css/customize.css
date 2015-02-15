@@ -247,7 +247,7 @@ p + .highlight {
 
 @media (min-width: 640px) {
     .input-group .form-control {
-        width: auto !important;
+        width: 100% !important;
     }
     .form-inline .input-group {
         display: inline-table !important;
