@@ -1,5 +1,127 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Effective Python</title><link href="http://www.effectivepython.com/" rel="alternate"></link><link href="http://www.effectivepython.com/atom.xml" rel="self"></link><id>http://www.effectivepython.com/</id><updated>2015-02-02T22:22:00-08:00</updated><entry><title>Item 34: Register Class Existence with Metaclasses</title><link href="http://www.effectivepython.com/2015/02/02/register-class-existence-with-metaclasses/" rel="alternate"></link><updated>2015-02-02T22:22:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2015-02-02:2015/02/02/register-class-existence-with-metaclasses/</id><summary type="html">&lt;p&gt;&lt;em&gt;The following is a sample from the new book &lt;a href="http://amzn.to/1ylkKmc"&gt;Effective Python&lt;/a&gt;.&lt;/em&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Effective Python</title><link href="http://www.effectivepython.com/" rel="alternate"></link><link href="http://www.effectivepython.com/atom.xml" rel="self"></link><id>http://www.effectivepython.com/</id><updated>2015-02-12T10:20:00-08:00</updated><entry><title>Item 23: Accept Functions for Simple Interfaces Instead of Classes</title><link href="http://www.effectivepython.com/2015/02/12/accept-functions-for-simple-interfaces-instead-of-classes/" rel="alternate"></link><updated>2015-02-12T10:20:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2015-02-12:2015/02/12/accept-functions-for-simple-interfaces-instead-of-classes/</id><summary type="html">&lt;p&gt;&lt;em&gt;The following is a sample from the new book &lt;a href="/"&gt;Effective Python&lt;/a&gt;.&lt;/em&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
+
+
+&lt;p&gt;Many of Python&amp;#8217;s built-in APIs allow you to customize behavior by passing in a function. These &lt;em&gt;hooks&lt;/em&gt; are used by APIs to call back your code while they execute. For example, the &lt;code&gt;list&lt;/code&gt; type&amp;#8217;s &lt;code&gt;sort&lt;/code&gt; method takes an optional &lt;code&gt;key&lt;/code&gt; argument that&amp;#8217;s used to determine each index&amp;#8217;s value for sorting. Here I sort a list of names based on their lengths by providing a &lt;code&gt;lambda&lt;/code&gt; expression as the &lt;code&gt;key&lt;/code&gt; hook.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;names&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Socrates&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;Archimedes&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;Plato&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;Aristotle&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;names&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sort&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;lambda&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="nb"&gt;len&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;names&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+[&amp;#39;Plato&amp;#39;, &amp;#39;Socrates&amp;#39;, &amp;#39;Aristotle&amp;#39;, &amp;#39;Archimedes&amp;#39;]
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In other languages, you might expect hooks to be defined by an abstract class. In Python, many hooks are just stateless functions with well-defined arguments and return values. Functions are ideal for hooks because they are easier to describe and simpler to define than classes. Functions work as hooks because Python has &lt;em&gt;first-class&lt;/em&gt; functions: Functions and methods can be passed around and referenced like any other value in the&amp;nbsp;language.&lt;/p&gt;
+&lt;p&gt;For example, say you want to customize the behavior of the &lt;code&gt;defaultdict&lt;/code&gt; class. This data structure allows you to supply a function that will be called each time a missing key is accessed. The function must return the default value the missing key should have in the dictionary. Here I define a hook that logs each time a key is missing and returns &lt;code&gt;0&lt;/code&gt; for the default&amp;nbsp;value.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;log_missing&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+    &lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Key added&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Given an initial dictionary and a set of desired increments, I can cause the &lt;code&gt;log_missing&lt;/code&gt; function to run and print twice (for &lt;code&gt;'red'&lt;/code&gt; and &lt;code&gt;'orange'&lt;/code&gt;).&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;current&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;green&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;12&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;#39;blue&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="mi"&gt;3&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="n"&gt;increments&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;red&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;blue&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;17&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+    &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;orange&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt;
+&lt;span class="p"&gt;]&lt;/span&gt;
+&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;defaultdict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;log_missing&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;Before:&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;amount&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;increments&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;amount&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;#39;After: &amp;#39;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="nb"&gt;dict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;div class="highlight"&gt;&lt;pre&gt;&amp;gt;&amp;gt;&amp;gt;
+Before: {&amp;#39;blue&amp;#39;: 3, &amp;#39;green&amp;#39;: 12}
+Key added
+Key added
+After:  {&amp;#39;red&amp;#39;: 5, &amp;#39;green&amp;#39;: 12, &amp;#39;blue&amp;#39;: 20, &amp;#39;orange&amp;#39;: 9}
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Supplying functions like &lt;code&gt;log_missing&lt;/code&gt; makes APIs easy to build and test because it separates side effects from deterministic behavior. For example, say you now want the default value hook passed to &lt;code&gt;defaultdict&lt;/code&gt; to count the total number of keys that were missing. One way to achieve this is using a stateful closure (see [Item 15 for details). Here I define a helper function that uses such a closure as the default value&amp;nbsp;hook.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;increment_with_report&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;increments&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="n"&gt;added_count&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;missing&lt;/span&gt;&lt;span class="p"&gt;():&lt;/span&gt;
+        &lt;span class="n"&gt;nonlocal&lt;/span&gt; &lt;span class="n"&gt;added_count&lt;/span&gt;  &lt;span class="c"&gt;# Stateful closure&lt;/span&gt;
+        &lt;span class="n"&gt;added_count&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+
+    &lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;defaultdict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;missing&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;amount&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;increments&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+        &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;amount&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;added_count&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Running this function produces the expected result (&lt;code&gt;2&lt;/code&gt;), even though the &lt;code&gt;defaultdict&lt;/code&gt; has no idea that the &lt;code&gt;missing&lt;/code&gt; hook maintains state. This is another benefit of accepting simple functions for interfaces. It&amp;#8217;s easy to add functionality later by hiding state in a&amp;nbsp;closure.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;increment_with_report&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;increments&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The problem with defining a closure for stateful hooks is that it&amp;#8217;s harder to read than the stateless function example. Another approach is to define a small class that encapsulates the state you want to&amp;nbsp;track.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;CountMissing&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;added&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;missing&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;added&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In other languages, you might expect that now &lt;code&gt;defaultdict&lt;/code&gt; would have to be modified to accommodate the interface of &lt;code&gt;CountMissing&lt;/code&gt;. But in Python, thanks to first-class functions, you can reference the &lt;code&gt;CountMissing.missing&lt;/code&gt; method directly on an object and pass it to &lt;code&gt;defaultdict&lt;/code&gt; as the default value hook. It&amp;#8217;s trivial to have a method satisfy a function&amp;nbsp;interface.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;counter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;CountMissing&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;defaultdict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;missing&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c"&gt;# Method reference&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;amount&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;increments&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;amount&lt;/span&gt;
+&lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;added&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Using a helper class like this to provide the behavior of a stateful closure is clearer than the &lt;code&gt;increment_with_report&lt;/code&gt; function above. However, in isolation it&amp;#8217;s still not immediately obvious what the purpose of the &lt;code&gt;CountMissing&lt;/code&gt; class is. Who constructs a &lt;code&gt;CountMissing&lt;/code&gt; object? Who calls the &lt;code&gt;missing&lt;/code&gt; method? Will the class need other public methods to be added in the future? Until you see its usage with &lt;code&gt;defaultdict&lt;/code&gt; the class is a&amp;nbsp;mystery.&lt;/p&gt;
+&lt;p&gt;To clarify this situation, Python allows classes to define the &lt;code&gt;__call__&lt;/code&gt; special method. &lt;code&gt;__call__&lt;/code&gt; allows an object to be called just like a function. It also causes the &lt;code&gt;callable&lt;/code&gt; built-in function to return &lt;code&gt;True&lt;/code&gt; for such an&amp;nbsp;instance.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;BetterCountMissing&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;object&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__init__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;added&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+
+    &lt;span class="k"&gt;def&lt;/span&gt; &lt;span class="nf"&gt;__call__&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
+        &lt;span class="bp"&gt;self&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;added&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;
+
+&lt;span class="n"&gt;counter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;BetterCountMissing&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="nb"&gt;callable&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here I use a &lt;code&gt;BetterCountMissing&lt;/code&gt; instance as the default value hook for a &lt;code&gt;defaultdict&lt;/code&gt; to track the number of missing keys that were&amp;nbsp;added.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span class="n"&gt;counter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;BetterCountMissing&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
+&lt;span class="n"&gt;result&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;defaultdict&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;current&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;  &lt;span class="c"&gt;# Relies on __call__&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;amount&lt;/span&gt; &lt;span class="ow"&gt;in&lt;/span&gt; &lt;span class="n"&gt;increments&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;key&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;+=&lt;/span&gt; &lt;span class="n"&gt;amount&lt;/span&gt;
+&lt;span class="k"&gt;assert&lt;/span&gt; &lt;span class="n"&gt;counter&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;added&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This is much clearer than the &lt;code&gt;CountMissing.missing&lt;/code&gt; example. The &lt;code&gt;__call__&lt;/code&gt; method indicates that a class&amp;#8217;s instances will be used somewhere a function argument would also be suitable (like &lt;span class="caps"&gt;API&lt;/span&gt; hooks). It directs new readers of the code to the entry point that&amp;#8217;s responsible for the class&amp;#8217;s primary behavior. It provides a strong hint that the goal of the class is to act as a stateful&amp;nbsp;closure.&lt;/p&gt;
+&lt;p&gt;Best of all, &lt;code&gt;defaultdict&lt;/code&gt; still has no view into what&amp;#8217;s going on when you use &lt;code&gt;__call__&lt;/code&gt;. All that &lt;code&gt;defaultdict&lt;/code&gt; requires is a function for the default value hook. Python provides many different ways to satisfy a simple function interface depending on what you need to&amp;nbsp;accomplish.&lt;/p&gt;
+&lt;h3&gt;Things to&amp;nbsp;Remember&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Instead of defining and instantiating classes, functions are often all you need for simple interfaces between components in&amp;nbsp;Python.&lt;/li&gt;
+&lt;li&gt;References to functions and methods in Python are first-class, meaning they can be used in expressions like any other&amp;nbsp;type.&lt;/li&gt;
+&lt;li&gt;The &lt;code&gt;__call__&lt;/code&gt; special method enables instances of a class to be called like plain Python&amp;nbsp;functions.&lt;/li&gt;
+&lt;li&gt;When you need a function to maintain state, consider defining a class that provides the &lt;code&gt;__call__&lt;/code&gt; method instead of defining a stateful&amp;nbsp;closure.&lt;/li&gt;
+&lt;/ul&gt;</summary></entry><entry><title>Item 34: Register Class Existence with Metaclasses</title><link href="http://www.effectivepython.com/2015/02/02/register-class-existence-with-metaclasses/" rel="alternate"></link><updated>2015-02-02T22:22:00-08:00</updated><author><name>Brett Slatkin</name></author><id>tag:www.effectivepython.com,2015-02-02:2015/02/02/register-class-existence-with-metaclasses/</id><summary type="html">&lt;p&gt;&lt;em&gt;The following is a sample from the new book &lt;a href="/"&gt;Effective Python&lt;/a&gt;.&lt;/em&gt;&lt;br&gt;&lt;br&gt;&lt;/p&gt;
 
 
 &lt;p&gt;A common use of metaclasses is to automatically register types in your program. Registration is useful for doing reverse lookups, where you need to map a simple identifier back to a corresponding class.&lt;/p&gt;

@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+            <title>Effective Python &rsaquo; Item 23: Accept Functions for Simple Interfaces Instead of Classes</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+            <script type="text/javascript" src="//use.typekit.net/wsb2ykq.js"></script>
+            <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+            <link href="http://www.effectivepython.com/theme/css/bootstrap.min.css" rel="stylesheet" />
+            <link href="http://www.effectivepython.com/theme/css/customize.css" rel="stylesheet" />
+            <link rel="icon" type="image/png" href="http://www.effectivepython.com/images/favicon.png">
+
+            <meta name="description" content="Many of Python’s built-in APIs allow you to customize behavior by passing in a function. These hooks are used by APIs to call back your code while they execute.">
+
+            <meta name="twitter:card" content="summary">
+            <meta name="twitter:creator" content="@EffectivePython">
+            <meta name="twitter:domain" content="effectivepython.com">
+            <meta name="twitter:title" content="Effective Python &rsaquo; Item 23: Accept Functions for Simple Interfaces Instead of Classes">
+            <meta name="twitter:description" content="Many of Python’s built-in APIs allow you to customize behavior by passing in a function. These hooks are used by APIs to call back your code while they execute.">
+            <meta name="twitter:img:src" content="http://www.effectivepython.com/images/cover.jpg">
+
+            <meta property="og:title" content="Effective Python &rsaquo; Item 23: Accept Functions for Simple Interfaces Instead of Classes">
+            <meta property="og:description" content="Many of Python’s built-in APIs allow you to customize behavior by passing in a function. These hooks are used by APIs to call back your code while they execute.">
+            <meta property="og:image" content="http://www.effectivepython.com/images/cover.jpg">
+            <meta property="og:url" content="http://www.effectivepython.com/2015/02/12/accept-functions-for-simple-interfaces-instead-of-classes/">
+
+            <link href="http://www.effectivepython.com/atom.xml" type="application/atom+xml" rel="alternate" title="Effective Python Atom Feed" />
+            <meta name="google-site-verification" content="SxIULiiLHOaU206Ix5AbXU_9g_JiWZrdyKeI46XRfOA">
+
+    </head>
+
+    <body>
+        <div class="header">
+            <div class="container">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h1 class="site-title"><a href="http://www.effectivepython.com/"><span class="effective-type">Effective</span> <span class="python-p-type">P</class><span class="python-rest-type">ython</span></a></h1>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<section id="content" class="article content">
+
+<div class="title-bar">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h1>Item 23: Accept Functions for Simple Interfaces Instead of&nbsp;Classes</h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="page-content">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="text-muted published-container">
+                    <abbr class="published" title="2015-02-12T10:20:00-08:00">Thu 12 February 2015</abbr>
+                </div>
+                <div class="entry-content">
+                    <p><em>The following is a sample from the new book <a href="/">Effective Python</a>.</em><br><br></p>
+
+
+<p>Many of Python&#8217;s built-in APIs allow you to customize behavior by passing in a function. These <em>hooks</em> are used by APIs to call back your code while they execute. For example, the <code>list</code> type&#8217;s <code>sort</code> method takes an optional <code>key</code> argument that&#8217;s used to determine each index&#8217;s value for sorting. Here I sort a list of names based on their lengths by providing a <code>lambda</code> expression as the <code>key</code> hook.</p>
+<div class="highlight"><pre><span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;Socrates&#39;</span><span class="p">,</span> <span class="s">&#39;Archimedes&#39;</span><span class="p">,</span> <span class="s">&#39;Plato&#39;</span><span class="p">,</span> <span class="s">&#39;Aristotle&#39;</span><span class="p">]</span>
+<span class="n">names</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">x</span><span class="p">))</span>
+<span class="k">print</span><span class="p">(</span><span class="n">names</span><span class="p">)</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+[&#39;Plato&#39;, &#39;Socrates&#39;, &#39;Aristotle&#39;, &#39;Archimedes&#39;]
+</pre></div>
+
+
+<p>In other languages, you might expect hooks to be defined by an abstract class. In Python, many hooks are just stateless functions with well-defined arguments and return values. Functions are ideal for hooks because they are easier to describe and simpler to define than classes. Functions work as hooks because Python has <em>first-class</em> functions: Functions and methods can be passed around and referenced like any other value in the&nbsp;language.</p>
+<p>For example, say you want to customize the behavior of the <code>defaultdict</code> class. This data structure allows you to supply a function that will be called each time a missing key is accessed. The function must return the default value the missing key should have in the dictionary. Here I define a hook that logs each time a key is missing and returns <code>0</code> for the default&nbsp;value.</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">log_missing</span><span class="p">():</span>
+    <span class="k">print</span><span class="p">(</span><span class="s">&#39;Key added&#39;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span>
+</pre></div>
+
+
+<p>Given an initial dictionary and a set of desired increments, I can cause the <code>log_missing</code> function to run and print twice (for <code>'red'</code> and <code>'orange'</code>).</p>
+<div class="highlight"><pre><span class="n">current</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;green&#39;</span><span class="p">:</span> <span class="mi">12</span><span class="p">,</span> <span class="s">&#39;blue&#39;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+<span class="n">increments</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s">&#39;red&#39;</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;blue&#39;</span><span class="p">,</span> <span class="mi">17</span><span class="p">),</span>
+    <span class="p">(</span><span class="s">&#39;orange&#39;</span><span class="p">,</span> <span class="mi">9</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">log_missing</span><span class="p">,</span> <span class="n">current</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;Before:&#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">amount</span> <span class="ow">in</span> <span class="n">increments</span><span class="p">:</span>
+    <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amount</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&#39;After: &#39;</span><span class="p">,</span> <span class="nb">dict</span><span class="p">(</span><span class="n">result</span><span class="p">))</span>
+</pre></div>
+
+
+<div class="highlight"><pre>&gt;&gt;&gt;
+Before: {&#39;blue&#39;: 3, &#39;green&#39;: 12}
+Key added
+Key added
+After:  {&#39;red&#39;: 5, &#39;green&#39;: 12, &#39;blue&#39;: 20, &#39;orange&#39;: 9}
+</pre></div>
+
+
+<p>Supplying functions like <code>log_missing</code> makes APIs easy to build and test because it separates side effects from deterministic behavior. For example, say you now want the default value hook passed to <code>defaultdict</code> to count the total number of keys that were missing. One way to achieve this is using a stateful closure (see [Item 15 for details). Here I define a helper function that uses such a closure as the default value&nbsp;hook.</p>
+<div class="highlight"><pre><span class="k">def</span> <span class="nf">increment_with_report</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">increments</span><span class="p">):</span>
+    <span class="n">added_count</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">missing</span><span class="p">():</span>
+        <span class="n">nonlocal</span> <span class="n">added_count</span>  <span class="c"># Stateful closure</span>
+        <span class="n">added_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">missing</span><span class="p">,</span> <span class="n">current</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">amount</span> <span class="ow">in</span> <span class="n">increments</span><span class="p">:</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amount</span>
+
+    <span class="k">return</span> <span class="n">result</span><span class="p">,</span> <span class="n">added_count</span>
+</pre></div>
+
+
+<p>Running this function produces the expected result (<code>2</code>), even though the <code>defaultdict</code> has no idea that the <code>missing</code> hook maintains state. This is another benefit of accepting simple functions for interfaces. It&#8217;s easy to add functionality later by hiding state in a&nbsp;closure.</p>
+<div class="highlight"><pre><span class="n">result</span><span class="p">,</span> <span class="n">count</span> <span class="o">=</span> <span class="n">increment_with_report</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">increments</span><span class="p">)</span>
+<span class="k">assert</span> <span class="n">count</span> <span class="o">==</span> <span class="mi">2</span>
+</pre></div>
+
+
+<p>The problem with defining a closure for stateful hooks is that it&#8217;s harder to read than the stateless function example. Another approach is to define a small class that encapsulates the state you want to&nbsp;track.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">CountMissing</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">added</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">missing</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">added</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">0</span>
+</pre></div>
+
+
+<p>In other languages, you might expect that now <code>defaultdict</code> would have to be modified to accommodate the interface of <code>CountMissing</code>. But in Python, thanks to first-class functions, you can reference the <code>CountMissing.missing</code> method directly on an object and pass it to <code>defaultdict</code> as the default value hook. It&#8217;s trivial to have a method satisfy a function&nbsp;interface.</p>
+<div class="highlight"><pre><span class="n">counter</span> <span class="o">=</span> <span class="n">CountMissing</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">counter</span><span class="o">.</span><span class="n">missing</span><span class="p">,</span> <span class="n">current</span><span class="p">)</span>  <span class="c"># Method reference</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">amount</span> <span class="ow">in</span> <span class="n">increments</span><span class="p">:</span>
+    <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amount</span>
+<span class="k">assert</span> <span class="n">counter</span><span class="o">.</span><span class="n">added</span> <span class="o">==</span> <span class="mi">2</span>
+</pre></div>
+
+
+<p>Using a helper class like this to provide the behavior of a stateful closure is clearer than the <code>increment_with_report</code> function above. However, in isolation it&#8217;s still not immediately obvious what the purpose of the <code>CountMissing</code> class is. Who constructs a <code>CountMissing</code> object? Who calls the <code>missing</code> method? Will the class need other public methods to be added in the future? Until you see its usage with <code>defaultdict</code> the class is a&nbsp;mystery.</p>
+<p>To clarify this situation, Python allows classes to define the <code>__call__</code> special method. <code>__call__</code> allows an object to be called just like a function. It also causes the <code>callable</code> built-in function to return <code>True</code> for such an&nbsp;instance.</p>
+<div class="highlight"><pre><span class="k">class</span> <span class="nc">BetterCountMissing</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">added</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">def</span> <span class="nf">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">added</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+<span class="n">counter</span> <span class="o">=</span> <span class="n">BetterCountMissing</span><span class="p">()</span>
+<span class="n">counter</span><span class="p">()</span>
+<span class="k">assert</span> <span class="nb">callable</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>
+</pre></div>
+
+
+<p>Here I use a <code>BetterCountMissing</code> instance as the default value hook for a <code>defaultdict</code> to track the number of missing keys that were&nbsp;added.</p>
+<div class="highlight"><pre><span class="n">counter</span> <span class="o">=</span> <span class="n">BetterCountMissing</span><span class="p">()</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">counter</span><span class="p">,</span> <span class="n">current</span><span class="p">)</span>  <span class="c"># Relies on __call__</span>
+<span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">amount</span> <span class="ow">in</span> <span class="n">increments</span><span class="p">:</span>
+    <span class="n">result</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">+=</span> <span class="n">amount</span>
+<span class="k">assert</span> <span class="n">counter</span><span class="o">.</span><span class="n">added</span> <span class="o">==</span> <span class="mi">2</span>
+</pre></div>
+
+
+<p>This is much clearer than the <code>CountMissing.missing</code> example. The <code>__call__</code> method indicates that a class&#8217;s instances will be used somewhere a function argument would also be suitable (like <span class="caps">API</span> hooks). It directs new readers of the code to the entry point that&#8217;s responsible for the class&#8217;s primary behavior. It provides a strong hint that the goal of the class is to act as a stateful&nbsp;closure.</p>
+<p>Best of all, <code>defaultdict</code> still has no view into what&#8217;s going on when you use <code>__call__</code>. All that <code>defaultdict</code> requires is a function for the default value hook. Python provides many different ways to satisfy a simple function interface depending on what you need to&nbsp;accomplish.</p>
+<h3>Things to&nbsp;Remember</h3>
+<ul>
+<li>Instead of defining and instantiating classes, functions are often all you need for simple interfaces between components in&nbsp;Python.</li>
+<li>References to functions and methods in Python are first-class, meaning they can be used in expressions like any other&nbsp;type.</li>
+<li>The <code>__call__</code> special method enables instances of a class to be called like plain Python&nbsp;functions.</li>
+<li>When you need a function to maintain state, consider defining a class that provides the <code>__call__</code> method instead of defining a stateful&nbsp;closure.</li>
+</ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</section>
+
+
+
+<section id="learn-more" class="content">
+
+
+<div class="page-content">
+    <div class="container">
+
+
+        <div class="row">
+            <div class="col-md-12">
+                <p><br></p>
+<h2><em>If you enjoyed this, get the&nbsp;book</em></h2>
+<div>
+    <a href="http://amzn.to/1ylkKmc"><img src="http://www.effectivepython.com/images/cover.jpg" class="learn-more-photo" alt="EFfective Python Book Cover"></a>
+</div>
+
+<p><em>Effective Python</em> provides insight into the <em>Pythonic</em> way of writing programs: the best way to use Python. Novice programmers will learn the best practices of Python&#8217;s capabilities. Experienced programmers will learn how to embrace the strangeness of a new tool with confidence. Items include advice on what to do, what to avoid, how to strike the right balance, and why this is the best&nbsp;choice.</p>
+<p>The digital version of the book will be available on <strong>February 19th, 2015</strong>. The print copy will be available on <strong>March 6th</strong>.</p>
+<p><a target="_blank" href="http://amzn.to/1ylkKmc" class="btn btn-info btn-lg">Preorder on&nbsp;Amazon</a></p>
+<p><a target="_blank" href="http://click.linksynergy.com/link?id=YvEWtFaKGwg&offerid=145238.2235742&type=2&murl=http%3A%2F%2Fwww.informit.com%2Ftitle%2F9780134034423" class="btn btn-info btn-lg">Preorder the&nbsp;eBook</a></p>
+<p><a href="/" class="btn btn-info btn-lg">Learn&nbsp;more</a></p>
+            </div>
+        </div>
+    </div>
+</div>
+
+</section>
+
+
+
+
+        <footer id="contentinfo" class="footer">
+            <div class="container">
+                <address id="about" class="vcard body">
+                    &copy; 2014 - 2015 <a class="url fn" href="http://www.onebigfluke.com">Brett Slatkin</a>
+                    <span class="footer-attribution"> &mdash; Powered by <a href="http://getpelican.com/">Pelican</a></span>
+                </address>
+            </div>
+        </footer>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+	var pageTracker = _gat._getTracker("UA-53888969-1");
+pageTracker._trackPageview();
+} catch(err) {}
+</script>
+    </body>
+</html>
