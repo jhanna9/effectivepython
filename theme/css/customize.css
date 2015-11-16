@@ -147,6 +147,9 @@ a:focus {
 .about-photo {
     max-height: 250px;
 }
+.article img {
+    max-height: 250px;
+}
 
 #about-the-author img {
     border-radius: 30px;
